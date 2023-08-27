@@ -1,0 +1,95 @@
+#main-container {
+    background-color: rgb(224, 56, 96);
+    background-image: linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=);
+    -webkit-transition: background 1s ease;
+    transition: background 1s ease;
+    height: 100vh;
+}
+
+.app-header {
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    display: block;
+    flex-grow: 1;
+    line-height: normal;
+    min-width: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    margin-block: 0px;
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-family,CircularSpTitle,CircularSpTitle-Tall,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif));
+    color: #fff
+}
+
+.text-top-track {
+    border: none;
+    margin-block-end: 0.1em;
+    line-height: 14px;
+    display: -webkit-box;
+    max-width: 200px;
+    color: #fff;
+    text-decoration: none;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    margin-block: 0px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-family,CircularSp,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif));
+    padding-block-end: 4px;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+    line-height: 1.6;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.subtitle-top-track {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    margin-block: 0px;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    font-family: var(--font-family,CircularSp,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif));
+    color: var(--text-subdued,#adadad);
+}
+
+.horizontal-radio {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+/*Cards*/
+.track-card {
+    /* Add shadows to create the "card" effect */
+    background-color: rgba(24,24,24);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    margin-bottom: 14px;
+    --card-container-border-radius: clamp(4px,(var(--column-width,0px) - 32px) * 0.025,8px);
+    -webkit-box-flex: 1;
+    background: #181818;
+    border-radius: calc(var(--card-container-border-radius) + 2px);
+    -ms-flex: 1;
+    flex: 1;
+    isolation: isolate;
+    padding: 16px;
+    position: relative;
+  }
+  
+  /* On mouse-over, add a deeper shadow */
+  .track-card:hover {
+    background-color: rgba(24,24,24);
+    -webkit-transition: background-color .3s ease;
+    transition: background-color .3s ease;
+    width: 100%;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  }
+  
+  /* Add some padding inside the card container */
+  .container {
+    padding: 2px 16px;
+  }

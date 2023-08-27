@@ -33,11 +33,11 @@ def track_card_container(range):
 
 def track_card_item(index, item):
     image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True)
-    track_name = f'{index+1}: {item["name"]}'
+    track_name = item["name"]
     artist_name = item["artists"][0]["name"]
     track_id = f'Spotify ID: {item["id"]}'
-    title = html.P(track_name, className="card-title")
-    subtitle = html.P(artist_name, className="card-subtitle")
+    title = html.P(track_name, className='text-top-track')
+    subtitle = html.P(artist_name, className='subtitle-top-track')
     #track_id = html.P(track_id, className="card-text")
     #snippet = html.Audio(src=item['preview_url'], controls=True, style={'width': '100%'})
 
@@ -47,6 +47,7 @@ def track_card_item(index, item):
             dbc.Row([dbc.Col([title])]),
             dbc.Row([dbc.Col([subtitle])]),
         ],
+        className='track-card',
     )
     
     return container_item
@@ -73,10 +74,8 @@ def top_tracks_card(range):
     return card_container
 
 #App Layout Components
-header = html.H4(
-    "Spotify Usage Analyzer", className="bg-primary text-white p-2 mb-2 text-center"
-)
-tracks_range_radio = dcc.RadioItems(['Last 4 Weeks', 'Last 6 Months','All Time'], 'Last 4 Weeks', inline=True, id='tracks-range-radio')
+header = html.P("Spotify Usage Analyzer", className="app-header")
+tracks_range_radio = dcc.RadioItems(['Last 4 Weeks', 'Last 6 Months','All Time'], 'Last 4 Weeks', id='tracks-range-radio', className='horizontal-radio')
 
 card_overview = html.Div([], id='top-tracks-card')
 card_patterns = []
@@ -103,12 +102,13 @@ def top_tracks(value):
 app.layout = dbc.Container(
     [
         dbc.Row(dbc.Col([header])),
-        dbc.Row(dbc.Col([tracks_range_radio], width=3)),
-        dbc.Row([dbc.Col([card_overview], width=3), dbc.Col([card_patterns], width=5), dbc.Col([card_genres], width=4)]),
-        dbc.Row([dbc.Col([card_playlists], width=3), dbc.Col([card_history], width=5), dbc.Col([card_mood], width=4)]),
+        dbc.Row(dbc.Col([tracks_range_radio], width=4)),
+        dbc.Row([dbc.Col([card_overview], width=4), dbc.Col([card_patterns], width=4), dbc.Col([card_genres], width=4)]),
+        dbc.Row([dbc.Col([card_playlists], width=4), dbc.Col([card_history], width=4), dbc.Col([card_mood], width=4)]),
     ],
     className="dbc",
     fluid=True,
+    id="main-container",
 )
 
 if __name__ == '__main__':
