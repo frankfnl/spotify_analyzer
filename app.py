@@ -15,10 +15,10 @@ def track_card_container(range):
     dict_range = {
         'short_term': 'Last 4 Weeks',
         'medium_term': 'Last 6 Months',
-        'long_term': ''
+        'long_term': 'All Time'
     }
 
-    title = html.H4(f"Top Tracks: {dict_range[range]}", className="card-title")
+    title = html.H4(f"Top Tracks: {dict_range[range]}", className="section-header")
 
     container = html.Div(
         [
@@ -102,8 +102,8 @@ def top_tracks(value):
 app.layout = dbc.Container(
     [
         dbc.Row(dbc.Col([header])),
-        dbc.Row(dbc.Col([tracks_range_radio], width=4)),
-        dbc.Row([dbc.Col([card_overview], width=4), dbc.Col([card_patterns], width=4), dbc.Col([card_genres], width=4)]),
+        dbc.Row([dbc.Col([card_overview], width=4, className='column-container'), dbc.Col([card_patterns], width=4), dbc.Col([card_genres], width=4)]),
+        dbc.Row(dbc.Col([tracks_range_radio], width=4, className='column-container')),
         dbc.Row([dbc.Col([card_playlists], width=4), dbc.Col([card_history], width=4), dbc.Col([card_mood], width=4)]),
     ],
     className="dbc",
