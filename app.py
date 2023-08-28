@@ -74,8 +74,13 @@ def top_tracks_card(range):
     return card_container
 
 #App Layout Components
-header = html.P("Spotify Usage Analyzer", className="app-header")
-tracks_range_radio = dcc.RadioItems(['Last 4 Weeks', 'Last 6 Months','All Time'], 'Last 4 Weeks', id='tracks-range-radio', className='horizontal-radio')
+header = html.P("Spotify Groove Graph", className="app-header")
+tracks_range_radio = html.Div(
+    [
+        dcc.RadioItems(['Last 4 Weeks', 'Last 6 Months','All Time'], 'Last 4 Weeks', id='tracks-range-radio', className='horizontal-radio')
+    ],
+    className='radio-container',
+)
 
 card_overview = html.Div([], id='top-tracks-card')
 card_patterns = []
