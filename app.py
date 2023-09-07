@@ -1,20 +1,21 @@
 import dash
-from dash import Dash, html, dcc, Output, Input
+from dash import Dash, html, dcc, Output, Input, callback
 from dotenv import load_dotenv
-import dash_bootstrap_components as dbc
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
+
+#Initialize App
+dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 #Load environment variables
 load_dotenv()
 
-#Spotipy Authentication
-top_scope = 'user-top-read'
-sp_top = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope))
-recent_scope = 'user-read-recently-played'
-sp_recent = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope))
+#Load Spotify data
+spotify_df = pd.read_csv('spotify_data/enriched_data/streaming_history.csv')
 
 def top_track_div(item):
     image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True)
@@ -61,7 +62,9 @@ def recent_track_div(item):
 
     return container_item
 
-def top_tracks(range, sp_auth):
+def top_tracks(range):
+    top_scope = 'user-top-read'
+    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope))
     dict_ranges = {
         'Last 4 Weeks' :    'short_term',
         'Last 6 Months':    'medium_term',
@@ -92,7 +95,9 @@ def top_tracks(range, sp_auth):
     container.children[3].children = row3
     return container
 
-def recent_tracks(sp_auth):
+def recent_tracks():
+    recent_scope = 'user-read-recently-played'
+    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope))
     results = sp_auth.current_user_recently_played(limit=7)
     items = [recent_track_div(item) for item in results['items']]
     title = html.H4(f"Recently played", className="section-header")
@@ -103,6 +108,47 @@ def recent_tracks(sp_auth):
         className='top-tracks-card-container',
     )
     return container
+
+def user_stats():
+    df = spotify_df.copy()
+    total_time = df['msPlayed'].sum()
+    total_time_minutes = round(total_time / 60000)
+    total_time_hours = round(total_time / 3600000)
+    total_time_days = round(total_time_hours / 24)
+    total_tracks = df.shape[0]
+    total_artists = df['artistName'].nunique()
+    df['trackLength'] = df['msPlayed'] / 60000
+    avg_track_length = round(df['trackLength'].mean(), 2)
+
+
+    dict_stats = {
+        'Minutes listened' : total_time_minutes,
+        'Days listened' : total_time_days,
+        'Tracks' : total_tracks,
+        'Artists' : total_artists,
+        'Average track length' : f'{avg_track_length} min'
+    }
+
+    stats = dbc.Container(
+        [
+            dbc.Stack(
+                [
+                    dbc.Row(
+                        [
+                            html.P(k, className='title-stats'),
+                            html.P(v, className='value-stats')
+                        ],
+                        className='stat-card',
+                        justify="center"
+                    )
+                    for k,v in dict_stats.items()
+                ],
+                gap=4
+            )
+        ],
+    )
+    return stats
+
 
 #App Layout Components
 header = html.P("Spotify Dashboard", className="app-header")
@@ -116,17 +162,22 @@ tracks_range_radio = html.Div(
     className='radio-container',
 )
 
+profile_image = html.Div(html.Img(src='assets/profile.jpg', className='profile-image'), className='profile-image-container')
 card_top_tracks = html.Div([], id='top-tracks')
-card_recent_tracks = html.Div([recent_tracks(sp_recent)], id='recent-tracks')
-card_patterns = []
-card_genres = []
-card_playlists = []
-card_history = []
-card_mood = []
+card_recent_tracks = html.Div([recent_tracks()], id='recent-tracks')
+card_user_stats = html.Div(user_stats())
 
-#Initialize App
-dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+navbar = dbc.Nav(
+    [
+        dbc.NavItem(dbc.NavLink("Overview", active=True, href="#")),
+        dbc.NavItem(dbc.NavLink("Listening Patterns", href="#")),
+        dbc.NavItem(dbc.NavLink("Favorite Genres", href="#")),
+        dbc.NavItem(dbc.NavLink("Top Tracks & Artists", href="#")),
+    ],
+    vertical="lg",
+    pills=True,
+    fill=True,
+)
 
 #Callbacks
 @app.callback(
@@ -134,25 +185,25 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
     Input('tracks-range-radio', 'value'),
 )
 def top_tracks_callback(value):
-    return top_tracks(value, sp_top)
+    return top_tracks(value)
 
-#App Layout
+#Layout
 app.layout = dbc.Container(
     [
-        dbc.Row(dbc.Col([header])),
         dbc.Row(
             [
-                dbc.Col([card_recent_tracks], width=2, className='column-container'),
-                dbc.Col([card_top_tracks, tracks_range_radio], width=4, className='column-container'),
-                dbc.Col([card_genres], width=4)
-            ]
+                dbc.Col([header])
+            ],
+            justify="center"
         ),
         dbc.Row(
             [
-                dbc.Col([card_playlists], width=4),
-                dbc.Col([card_history], width=4),
-                dbc.Col([card_mood], width=4)
-            ]
+                dbc.Col([navbar], width=1, className='column-container'),
+                dbc.Col([card_recent_tracks], width=2, className='column-container'),
+                dbc.Col([card_top_tracks, tracks_range_radio], width=4, className='column-container'),
+                dbc.Col([profile_image, card_user_stats], width=2, className='column-container')
+            ],
+            justify="center", 
         ),
     ],
     className="dbc",
@@ -160,5 +211,6 @@ app.layout = dbc.Container(
     id="main-container",
 )
 
+
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    app.run(debug=True)
