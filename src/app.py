@@ -14,6 +14,7 @@ import pathlib
 import json
 import inspect, os.path
 from pathlib import Path
+import pickle
 
 #Initialize App
 dbc_css = 'https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css'
@@ -77,51 +78,71 @@ def recent_track_div(item):
     return container_item
 
 def top_tracks(range):
-    top_scope = 'user-top-read'
-    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope, open_browser=False))
+    # top_scope = 'user-top-read'
+    # sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope))
     dict_ranges = {
         'Last 4 Weeks' :    'short_term',
         'Last 6 Months':    'medium_term',
         'All Time':         'long_term'
     }
 
-    results = sp_auth.current_user_top_tracks(time_range=dict_ranges[range], limit=12)
-    title = html.H4(f'Top Tracks: {range}', className='section-header')
+    # results = sp_auth.current_user_top_tracks(time_range=dict_ranges[range], limit=12)
+    
+    # # save dictionary to top_tracks.pkl file
+    # with open(f'top_tracks_{dict_ranges[range]}.pkl', 'wb') as fp:
+    #     pickle.dump(results, fp)
+    #     print('dictionary saved successfully to file')
 
-    container = html.Div(
-        [
-            dbc.Row([dbc.Col([title])]),
-            dbc.Row([]),
-            dbc.Row([]),
-            dbc.Row([]),
-        ],
-        className='top-tracks-card-container',
-    )
+    # Read dictionary pkl file
+    top_tracks_path = Path(current_directory + f'/top_tracks_{dict_ranges[range]}.pkl')
+    with open(top_tracks_path, 'rb') as fp:
+        results = pickle.load(fp)
+        title = html.H4(f'Top Tracks: {range}', className='section-header')
 
-    items = [top_track_div(item) for item in results['items']]
-    def row(items):
-        return dbc.Row([dbc.Col([i]) for i in items])
-    row1 = row(items[:4])
-    row2 = row(items[4:8])
-    row3 = row(items[8:12])
-    container.children[1].children = row1
-    container.children[2].children = row2
-    container.children[3].children = row3
-    return container
+        container = html.Div(
+            [
+                dbc.Row([dbc.Col([title])]),
+                dbc.Row([]),
+                dbc.Row([]),
+                dbc.Row([]),
+            ],
+            className='top-tracks-card-container',
+        )
+
+        items = [top_track_div(item) for item in results['items']]
+        def row(items):
+            return dbc.Row([dbc.Col([i]) for i in items])
+        row1 = row(items[:4])
+        row2 = row(items[4:8])
+        row3 = row(items[8:12])
+        container.children[1].children = row1
+        container.children[2].children = row2
+        container.children[3].children = row3
+        return container
 
 def recent_tracks():
-    recent_scope = 'user-read-recently-played'
-    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope, open_browser=False))
-    results = sp_auth.current_user_recently_played(limit=7)
-    items = [recent_track_div(item) for item in results['items']]
-    title = html.H4(f'Recently played', className='section-header')
-    children = [dbc.Row([dbc.Col([items[i]])]) for i in (range(len(items)))]
-    children.insert(0, dbc.Row([dbc.Col([title])]))
-    container = html.Div(
-        children,
-        className='top-tracks-card-container',
-    )
-    return container
+    # recent_scope = 'user-read-recently-played'
+    # sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope))
+    # results = sp_auth.current_user_recently_played(limit=7)
+    # # save dictionary to top_tracks.pkl file
+    # with open('recent_tracks.pkl', 'wb') as fp:
+    #     pickle.dump(results, fp)
+    #     print('dictionary saved successfully to file')
+
+    # Read dictionary pkl file
+    recent_tracks_path = Path(current_directory + '/recent_tracks.pkl')
+    with open(recent_tracks_path, 'rb') as fp:
+        results = pickle.load(fp)
+        title = html.H4(f'Top Tracks: {range}', className='section-header')
+        items = [recent_track_div(item) for item in results['items']]
+        title = html.H4(f'Recently played', className='section-header')
+        children = [dbc.Row([dbc.Col([items[i]])]) for i in (range(len(items)))]
+        children.insert(0, dbc.Row([dbc.Col([title])]))
+        container = html.Div(
+            children,
+            className='top-tracks-card-container',
+        )
+        return container
 
 def user_stats():
     df = spotify_df.copy()
