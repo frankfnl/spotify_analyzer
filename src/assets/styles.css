@@ -243,3 +243,11 @@ label {
 .heatmap-buttons {
     padding-right: 0.5rem;
 }
+
+#dropdown-week {
+    padding: 0.1rem;
+}
+
+.controls {
+    padding-top: 3rem;
+}

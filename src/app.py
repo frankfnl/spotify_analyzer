@@ -32,6 +32,7 @@ current_directory = current_directory.replace('\\','/')
 spotify_data_path = Path(current_directory + '/streaming_history.csv')
 spotify_df = pd.read_csv(spotify_data_path)
 
+
 def top_track_div(item):
     image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True)
     track_name = item['name']
@@ -294,6 +295,25 @@ navbar = dbc.Nav(
     fill=True,
 )
 navbar_container = dbc.Col([navbar], width=1, className='column-container')
+dropdown_options = [{'label': f'Week {x}', 'value': x} for x in range(0, 53)]
+dropdown_week = html.Div([dcc.Dropdown(options=dropdown_options, value=0, id='dropdown-week', maxHeight=150)])
+control_title = html.H4('Select', className='section-header')
+navbar_container_dropdown = dbc.Col(
+    className='column-container',
+    width=1,
+    children=[
+        html.Div(
+            [
+                dbc.Col([navbar])
+            ]
+        ),
+        html.Div(
+            [
+                dbc.Col([control_title, dropdown_week], className='controls')
+            ],
+        )
+    ]
+)
 
 content = dbc.Container(
     children=[
@@ -316,13 +336,6 @@ content = dbc.Container(
 )
 
 dcc.Location(id='url'),
-heatmap_buttons = html.Div(
-    [
-        dbc.Button('Prev', n_clicks=0, id='button-prev', className='mr-1', size='sm', ),
-        dbc.Button('Next', n_clicks=0, id='button-next', className='mr-1', size='sm'),
-    ],
-    className='d-grid gap-2 d-md-flex justify-content-md-start',
-)
 
 #heatmaps_weekly = heatmaps_weekly()
 
@@ -334,7 +347,6 @@ app.layout = dbc.Container(
         dcc.Store(id='stored-window-size'),
         dcc.Store(id='stored-heatmap-yearly'),
         dcc.Store(id='stored-heatmap-weekly'),
-        dcc.Store(id='current-state-heatmap'),
         content
     ],
     className='dbc',
@@ -385,57 +397,35 @@ def top_tracks_callback(value):
         raise PreventUpdate
     
 @app.callback(
-    Output('current-state-heatmap', 'data'),
-    Output('listening-patterns', 'children'),
+    Output('listening-patterns-yearly', 'children'),
     Input('stored-window-size', 'data'),
     Input('stored-heatmap-yearly', 'data'),
-    Input('stored-heatmap-weekly', 'data'),
-    Input('button-next', 'n_clicks'),
-    Input('button-prev', 'n_clicks'),
-    State('current-state-heatmap', 'data'),
 )
-def listening_patterns_callback(window_size, heatmap_yearly_json, heatmap_weekly_json, clicks_next, clicks_prev, current_state_heatmap):
+def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     title1=html.H4('Yearly listening patterns', className='section-header section-header-heatmap')
     height = window_size[0] *0.35
     fig_yearly = pd.read_json(heatmap_yearly_json, orient='split').copy()
     fig_yearly = df_to_heatmap(fig_yearly)
     fig_yearly.update_layout(height=height)
+    listening_patterns_yearly = html.Div([dcc.Graph(figure=fig_yearly)], className='heatmap')
+    return [title1, listening_patterns_yearly]
+
+@app.callback(
+    Output('listening-patterns-weekly', 'children'),
+    Input('stored-window-size', 'data'),
+    Input('stored-heatmap-weekly', 'data'),
+    Input('dropdown-week', 'value'),
+)
+def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
+    title=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap')
+    height = window_size[0] *0.35
     heatmaps_weekly = [pd.read_json(json, orient='split').copy() for json in heatmap_weekly_json]
     figs_weekly = [df_to_heatmap(df) for df in heatmaps_weekly]
-
     for fig in figs_weekly:
-        fig.update_layout(height=height)
-    if current_state_heatmap is None:
-        week = 0
-        clicks_next = 0
-        clicks_prev = 0
-    else:
-        if clicks_next > current_state_heatmap['clicks_next']:
-            week = current_state_heatmap['current_week'] + 1
-            clicks_next = clicks_next
-        
-        if clicks_prev > current_state_heatmap['clicks_prev']:
-            week = current_state_heatmap['current_week'] - 1
-            clicks_prev = clicks_prev  
-
-    listening_patterns_yearly = html.Div([dcc.Graph(figure=fig_yearly)], className='heatmap')
+            fig.update_layout(height=height)
     listening_patterns_weekly = html.Div([dcc.Graph(figure=figs_weekly[week])], className='heatmap')
-    title2=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap')
+    return [title, listening_patterns_weekly]
 
-    return [
-        {
-            'current_week': week,
-            'clicks_next': clicks_next,
-            'clicks_prev': clicks_prev,
-        },
-        [
-            title1,
-            listening_patterns_yearly,
-            title2,
-            listening_patterns_weekly
-        ]    
-    ]
-    
 @app.callback(
     Output('page-content', 'children'),
     [Input('url', 'pathname')],
@@ -451,8 +441,15 @@ def render_page_content(pathname):
         ]
     elif pathname == '/listening_patterns/':
         return [
-            navbar_container,
-            dbc.Col([html.Div(id='listening-patterns'), heatmap_buttons], width=8, className='column-container')
+            navbar_container_dropdown,
+            dbc.Col(
+                [
+                    html.Div(id='listening-patterns-yearly'),
+                    dbc.Spinner(html.Div(id='listening-patterns-weekly'), color="primary")
+                ],
+                width=8,
+                className='column-container'
+            )
         ]
     elif pathname == '/favorite_genres/':
         return [
