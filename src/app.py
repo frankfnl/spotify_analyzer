@@ -422,11 +422,10 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
 def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     title=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap')
     height = window_size[0] *0.35
-    heatmaps_weekly = [pd.read_json(json, orient='split').copy() for json in heatmap_weekly_json]
-    figs_weekly = [df_to_heatmap(df) for df in heatmaps_weekly]
-    for fig in figs_weekly:
-            fig.update_layout(height=height)
-    listening_patterns_weekly = html.Div([dcc.Graph(figure=figs_weekly[week])], className='heatmap')
+    heatmap_df = pd.read_json(heatmap_weekly_json[week], orient='split').copy()
+    fig = df_to_heatmap(heatmap_df)
+    fig.update_layout(height=height)
+    listening_patterns_weekly = html.Div([dcc.Graph(figure=fig)], className='heatmap')
     return [title, listening_patterns_weekly]
 
 @app.callback(
