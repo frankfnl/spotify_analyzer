@@ -281,7 +281,7 @@ tracks_range_radio = html.Div(
     className='radio-container',
 )
 
-profile_image = html.Div(html.Img(src='assets/profile.jpg', className='profile-image'), className='profile-image-container')
+profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'), className='profile-image-container')
 card_top_tracks = html.Div([], id='top-tracks')
 card_recent_tracks = html.Div([recent_tracks()], id='recent-tracks')
 card_user_stats = html.Div(user_stats())
