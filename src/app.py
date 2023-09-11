@@ -12,6 +12,8 @@ from flask import Flask
 from flask_caching import Cache
 import pathlib
 import json
+import inspect, os.path
+from pathlib import Path
 
 #Initialize App
 dbc_css = 'https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css'
@@ -23,7 +25,11 @@ app.title = 'Spotify Dashboard'
 load_dotenv()
 
 #Spotify data
-spotify_df = pd.read_csv('src\spotify_data\enriched_data\streaming_history.csv')
+filename = inspect.getframeinfo(inspect.currentframe()).filename
+current_directory = os.path.dirname(os.path.abspath(filename))
+current_directory = current_directory.replace('\\','/')
+spotify_data_path = Path(current_directory + '/streaming_history.csv')
+spotify_df = pd.read_csv(spotify_data_path)
 
 def top_track_div(item):
     image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True)
@@ -72,7 +78,7 @@ def recent_track_div(item):
 
 def top_tracks(range):
     top_scope = 'user-top-read'
-    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope))
+    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope, open_browser=False))
     dict_ranges = {
         'Last 4 Weeks' :    'short_term',
         'Last 6 Months':    'medium_term',
@@ -105,7 +111,7 @@ def top_tracks(range):
 
 def recent_tracks():
     recent_scope = 'user-read-recently-played'
-    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope))
+    sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope, open_browser=False))
     results = sp_auth.current_user_recently_played(limit=7)
     items = [recent_track_div(item) for item in results['items']]
     title = html.H4(f'Recently played', className='section-header')
