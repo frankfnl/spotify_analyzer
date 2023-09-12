@@ -508,7 +508,7 @@ links = html.Div(
             [
                 dbc.Button(
                     [
-                        html.I(className='fas fa-envelope-square'),
+                        html.I(className='fa-solid fa-envelope'),
                         html.Span(' Email'),
                     ],
                     href='mailto:f.nava.morales92@gmail.com',
@@ -682,7 +682,15 @@ def render_page_content(pathname):
         return [
             navbar_container,
             dbc.Col([about], width=5, className='column-container'),
-            dbc.Col([profile_image, links], width=2, className='column-container')
+            dbc.Col(
+                [
+                dbc.Row(
+                    [
+                        dbc.Col([profile_image, links],width=12),
+                    ],
+                    justify='center'
+                )
+            ], width=1, className='column-container')
         ]
     # If the user tries to reach a different page, return a 404 message
     # return dbc.Jumbotron(
