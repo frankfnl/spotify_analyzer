@@ -481,13 +481,13 @@ dcc.Location(id='url'),
 
 about = html.Div(
         [
-            html.P("Have you ever wondered what's are your personal listening patterns?"),
-            html.P("You can now engage with this dashboard to get to know, understand and visualize your favorite music."),
-            html.P("From a personal overview, to your listening patterns, and top tracks/artists."),
+            html.P("Have you ever wondered what are your personal listening patterns?"),
+            html.P("You can now engage with this dashboard to get to know, understand and visualize my favorite music."),
+            html.P("From a personal overview, to listening patterns, and top tracks/artists."),
             html.Br(),
             html.Br(),
             html.P('Here, I present you my personal Spotify dashboard, an interactive web application built'),
-            html.P("using Spotify's API data obtained via Python, transformed via Pandas and visualized via Plotly Dash."),
+            html.P("using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
             html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/grimhood/', target='_blank',)]),
             html.Br(),
             html.P("I hope you enjoy it!"),
