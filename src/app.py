@@ -21,6 +21,12 @@ dbc_css = 'https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.mi
 app = Dash(
     __name__, 
     external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_scripts = [
+        {
+            'src': 'https://kit.fontawesome.com/4ed21bb725.js',
+            'crossorigin': 'anonymous',
+        },
+    ],
     meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}])
 server = app.server
 app.title = 'Spotify Dashboard'
@@ -259,7 +265,6 @@ def heatmap_weekly():
     heatmap.reset_index(inplace=True)
     heatmap.drop(columns='index', inplace=True)
     heatmap = heatmap.fillna(0)
-    #Get a list of week values from the dataframe
     week_list = heatmap['week'].astype(str).unique().tolist()
 
     def pivot_df(df):
@@ -382,7 +387,19 @@ def top_tracks_bar_graph():
     return fig
 
 #App Layout Components
-header = html.P('Spotify Dashboard', className='app-header')
+header = html.P(
+    [
+        'Spotify Dashboard ',
+        html.A(
+            '(by Francisco Nava)',
+            href='https://github.com/grimhood/',
+            target='_blank',
+            className='link-header'
+        )
+    ],
+    className='app-header'
+)
+
 tracks_range_radio = html.Div(
     [
         dcc.RadioItems(['Last 4 Weeks', 'Last 6 Months','All Time'],
@@ -394,6 +411,16 @@ tracks_range_radio = html.Div(
 )
 
 profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'), className='profile-image-container')
+profile_image = html.Div(
+    [
+        html.A(
+            html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'),
+            href='https://open.spotify.com/user/1277049780',
+            target='_blank'
+        )
+    ],
+    className='profile-image-container'
+)
 card_top_tracks = html.Div([], id='top-tracks')
 card_recent_tracks = html.Div([recent_tracks()], id='recent-tracks')
 card_user_stats = html.Div(user_stats())
@@ -403,6 +430,7 @@ navbar = dbc.Nav(
         dbc.NavItem(dbc.NavLink('Overview', active= 'exact', href='/overview/')),
         dbc.NavItem(dbc.NavLink('Listening Patterns', active= 'exact', href='/listening_patterns/')),
         dbc.NavItem(dbc.NavLink('Top Tracks & Artists', active= 'exact', href='/top/')),
+        dbc.NavItem(dbc.NavLink('About', active= 'exact', href='/about/')),
     ],
     vertical='lg',
     pills=True,
@@ -451,7 +479,57 @@ content = dbc.Container(
 
 dcc.Location(id='url'),
 
-#heatmaps_weekly = heatmaps_weekly()
+about = html.Div(
+        [
+            html.P("Have you ever wondered what's are your personal listening patterns?"),
+            html.P("You can now engage with this dashboard to get to know, understand and visualize your favorite music."),
+            html.P("From a personal overview, to your listening patterns, and top tracks/artists."),
+            html.Br(),
+            html.Br(),
+            html.P('Here, I present you my personal Spotify dashboard, an interactive web application built'),
+            html.P("using Spotify's API data obtained via Python, transformed via Pandas and visualized via Plotly Dash."),
+            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/grimhood/', target='_blank',)]),
+            html.Br(),
+            html.P("I hope you enjoy it!"),
+        ],
+        className='about'
+
+)
+
+links = html.Div(
+    [
+        #Make a link with an icon to its left
+        dbc.Button(
+            [
+                html.I(className='fas fa-envelope-square'),
+                html.Span(' Email'),
+            ],
+            href='mailto:f.nava.morales92@gmail.com',
+            target='_blank',
+            className='social-link',
+        ),
+        dbc.Button(
+            [
+                html.I(className='fa brands fa-github-alt'),
+                html.Span(' Github'),
+            ],
+            href='https://github.com/grimhood/',
+            target='_blank',
+            className='social-link',
+        ),
+        dbc.Button(
+            [
+                html.I(className='fab fa-linkedin'),
+                html.Span(' LinkedIn'),
+            ],
+            href='https://www.linkedin.com/in/navamorales/',
+            target='_blank',
+            className='social-link',
+        )
+    ],
+    className='links'
+)
+
 
 #App Layout
 app.layout = dbc.Container(
@@ -584,14 +662,20 @@ def render_page_content(pathname):
             navbar_container,
             dbc.Col([dbc.Spinner(html.Div(id='top-artists-tracks'), color="primary")], width=8, className='column-container')
         ]
-    # If the user tries to reach a different page, return a 404 message
-    return dbc.Jumbotron(
-        [
-            html.H1('404: Not found', className='text-danger'),
-            html.Hr(),
-            html.P(f'The pathname {pathname} was not recognised...'),
+    elif pathname == '/about/':
+        return [
+            navbar_container,
+            dbc.Col([about], width=5, className='column-container'),
+            dbc.Col([profile_image, links], width=1, className='column-container')
         ]
-    )
+    # If the user tries to reach a different page, return a 404 message
+    # return dbc.Jumbotron(
+    #     [
+    #         html.H1('404: Not found', className='text-danger'),
+    #         html.Hr(),
+    #         html.P(f'The pathname {pathname} was not recognised...'),
+    #     ]
+    # )
 
 
 if __name__ == '__main__':

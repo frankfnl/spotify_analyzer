@@ -251,3 +251,24 @@ label {
 .controls {
     padding-top: 3rem;
 }
+
+.link-header {
+    font-size: 1.2rem;
+}
+
+a {
+    color: white;
+}
+
+.about {
+    color: white;
+}
+
+.icon {
+    color: white;
+}
+
+.social-link {
+    margin: 1rem;
+    text-align: center;
+}
