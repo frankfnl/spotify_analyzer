@@ -48,6 +48,7 @@ def top_track_div(item):
     artist_name = item['artists'][0]['name']
     track_id = f'Spotify ID: {item["id"]}'
     title = html.P(track_name, className='text-top-track')
+    title = html.A(title, href=item['external_urls']['spotify'], target='_blank')
     subtitle = html.P(artist_name, className='subtitle-top-track')
 
     container_item = html.Div(
@@ -66,6 +67,7 @@ def recent_track_div(item):
     track_name = item['track']['name']
     artist_name = item['track']['artists'][0]['name']
     title = html.P(track_name, className='text-top-track text-recent-track')
+    title = html.A(title, href=item['track']['external_urls']['spotify'], target='_blank')
     subtitle = html.P(artist_name, className='subtitle-top-track')
 
     container_item = html.Div(
