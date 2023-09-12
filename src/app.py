@@ -203,7 +203,6 @@ def df_to_heatmap(df):
             zeroline = False,
             showline = False,
             showgrid = False,
-            ticksuffix="   "
         ),
         xaxis = dict(
             tickmode = 'array',
@@ -221,6 +220,13 @@ def df_to_heatmap(df):
         plot_bgcolor='rgb(0,0,0)',
         margin=dict(t=20,b=20,l=20,r=20),
     )
+    fig.update(data=[{'customdata': df,
+        'hovertemplate':
+            '<br><b>Day </b>: %{y}'+
+            '<br><b>Time </b>: %{x}'+
+            '<br><b>Count </b>: %{z}<br>'+
+            '<extra></extra>',
+    }])
     return fig
 
 def heatmap_yearly():
@@ -268,6 +274,112 @@ def heatmap_weekly():
     json_list = [df.to_json(date_format='iso', orient='split') for df in heatmap_list]
     return json_list
 
+def top_artists_bar_graph():
+    df = spotify_df.copy()
+    top_artists = df.groupby('artistName').sum()
+    top_artists.reset_index(inplace=True)
+    top_artists = top_artists[['artistName', 'msPlayed']]
+    top_artists['msPlayed'] = top_artists['msPlayed'] / 60000
+    top_artists['msPlayed'] = top_artists['msPlayed'].round()
+    top_artists.rename(columns={'msPlayed': 'Minutes Listened'}, inplace=True)
+    top_artists.sort_values(by='Minutes Listened', ascending=False, inplace=True)
+    top_artists.reset_index(inplace=True)
+    top_artists.drop(columns='index', inplace=True)
+    top_artists = top_artists.head(15)
+    colors = [
+        '#b7193f', '#bc243f', '#c13040', '#c63b41', '#cb4741',
+        '#cb4741', '#d45e42','#d96942', '#de7443', '#e38044',
+        '#e88b44', '#ed9745', '#ed9745', '#ed9745', '#ed9745'
+    ]
+
+    fig = go.Figure(data=[go.Bar(
+        x=top_artists['Minutes Listened'],
+        y=top_artists['artistName'],
+        marker_color=colors,
+        orientation='h',
+        hovertemplate =
+            '<br><b>Artist Name </b>: %{y}'+
+            '<br><b>Minutes listened </b>: %{x}<br>'+
+            '<extra></extra>',
+    )])
+    fig.update_layout(
+        title_text='Top artists',
+        paper_bgcolor='rgb(39,38,38)',
+        plot_bgcolor='rgb(39,38,38)',
+        yaxis = dict(
+            zeroline = False,
+            showline = False,
+            showgrid = False,
+            side = 'right'
+        ),
+        xaxis = dict(
+            zeroline = False,
+            showline = False,
+            showgrid = False
+        ),
+        font_color='white',
+        title_font_color='white',
+        margin=dict(t=25,b=20,l=20,r=20),
+    )
+    fig.update_traces(marker=dict(line=dict(width=0)))
+    fig.update_xaxes(title_text='Minutes Listened')
+    return fig
+
+def top_tracks_bar_graph():
+    df = spotify_df.copy()
+    top_tracks = df.groupby(['artistName', 'trackName']).sum()
+    top_tracks.reset_index(inplace=True)
+    top_tracks = top_tracks[['artistName', 'trackName', 'msPlayed']]
+    top_tracks['msPlayed'] = top_tracks['msPlayed'] / 60000
+    top_tracks['msPlayed'] = top_tracks['msPlayed'].round()
+    top_tracks.rename(columns={'msPlayed': 'Minutes Listened'}, inplace=True)
+    top_tracks.sort_values(by='Minutes Listened', ascending=False, inplace=True)
+    top_tracks.reset_index(inplace=True)
+    top_tracks.drop(columns='index', inplace=True)
+    top_tracks = top_tracks.head(15)
+
+    #Create the graph with the artist with most listened minutes on top
+    colors = [
+        '#DF3226', '#E54428', '#E53123', '#EB3752', '#F5517B',
+        '#F85F89', '#F96998','#F075AF', '#E770AD', '#DF6DB8',
+        '#D56ABE', '#C56AC0', '#9870BF', '#8974BB', '#6C75BB'
+    ]
+
+    fig = go.Figure(data=[go.Bar(
+        x=top_tracks['Minutes Listened'],
+        y=top_tracks['trackName'],
+        marker_color=colors,
+        orientation='h',
+        hovertemplate =
+            '<br><b>Artist Name </b>: %{hovertext}'+
+            '<br><b>Track </b>: %{y}'+
+            '<br><b>Minutes listened </b>: %{x}<br>'+
+            '<extra></extra>',
+        hovertext = top_tracks['artistName'],
+        showlegend = False,
+    )])
+    fig.update_layout(
+        title_text='Top tracks',
+        paper_bgcolor='rgb(39,38,38)',
+        plot_bgcolor='rgb(39,38,38)',
+        yaxis = dict(
+            zeroline = False,
+            showline = False,
+            showgrid = False,
+            side = 'right'
+        ),
+        xaxis = dict(
+            zeroline = False,
+            showline = False,
+            showgrid = False
+        ),
+        font_color='white',
+        title_font_color='white',
+        margin=dict(t=25,b=20,l=20,r=20),
+    )
+    fig.update_traces(marker=dict(line=dict(width=0)))
+    fig.update_xaxes(title_text='Minutes Listened')
+    return fig
 
 #App Layout Components
 header = html.P('Spotify Dashboard', className='app-header')
@@ -290,7 +402,6 @@ navbar = dbc.Nav(
     [
         dbc.NavItem(dbc.NavLink('Overview', active= 'exact', href='/overview/')),
         dbc.NavItem(dbc.NavLink('Listening Patterns', active= 'exact', href='/listening_patterns/')),
-        dbc.NavItem(dbc.NavLink('Favorite Genres', active= 'exact', href='/favorite_genres/')),
         dbc.NavItem(dbc.NavLink('Top Tracks & Artists', active= 'exact', href='/top/')),
     ],
     vertical='lg',
@@ -429,6 +540,21 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     return [title, listening_patterns_weekly]
 
 @app.callback(
+    Output('top-artists-tracks', 'children'),
+    Input('stored-window-size', 'data'),
+)
+def top_artists_tracks_callback(window_size):
+    height = window_size[0] *0.40
+    top_artists_fig = top_artists_bar_graph()
+    top_tracks_fig = top_tracks_bar_graph()
+    top_artists_fig.update_layout(height=height)
+    top_tracks_fig.update_layout(height=height)
+    return [
+        html.Div([dcc.Graph(figure=top_tracks_fig)], className='heatmap'),
+        html.Div([dcc.Graph(figure=top_artists_fig)], className='heatmap')
+    ]
+
+@app.callback(
     Output('page-content', 'children'),
     [Input('url', 'pathname')],
 )
@@ -453,15 +579,10 @@ def render_page_content(pathname):
                 className='column-container'
             )
         ]
-    elif pathname == '/favorite_genres/':
-        return [
-            navbar_container,
-            dbc.Col([], width=8, className='column-container')
-        ]
     elif pathname == '/top/':
         return [
             navbar_container,
-            dbc.Col([], width=8, className='column-container')
+            dbc.Col([dbc.Spinner(html.Div(id='top-artists-tracks'), color="primary")], width=8, className='column-container')
         ]
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
