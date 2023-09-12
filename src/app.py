@@ -43,7 +43,7 @@ spotify_df = pd.read_csv(spotify_data_path)
 
 
 def top_track_div(item):
-    image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True)
+    image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True, className='image-top-track')
     track_name = item['name']
     artist_name = item['artists'][0]['name']
     track_id = f'Spotify ID: {item["id"]}'
@@ -108,26 +108,29 @@ def top_tracks(range):
     with open(top_tracks_path, 'rb') as fp:
         results = pickle.load(fp)
         title = html.H4(f'Top Tracks: {range}', className='section-header')
+        items = [top_track_div(item) for item in results['items']]
 
         container = html.Div(
             [
                 dbc.Row([dbc.Col([title])]),
-                dbc.Row([]),
-                dbc.Row([]),
-                dbc.Row([]),
+                dbc.Row([
+                    dbc.Col(items[:3], width=6, lg=3),
+                    dbc.Col(items[3:6], width=6, lg=3),
+                    dbc.Col(items[6:9], width=6, lg=3),
+                    dbc.Col(items[9:12], width=6, lg=3),
+                ]),
             ],
             className='top-tracks-card-container',
         )
 
-        items = [top_track_div(item) for item in results['items']]
-        def row(items):
-            return dbc.Row([dbc.Col([i]) for i in items])
-        row1 = row(items[:4])
-        row2 = row(items[4:8])
-        row3 = row(items[8:12])
-        container.children[1].children = row1
-        container.children[2].children = row2
-        container.children[3].children = row3
+        # def row(items):
+        #     return dbc.Row([dbc.Col([i]) for i in items])
+        # row1 = row()
+        # row2 = row(items[4:8])
+        # row3 = row(items[8:12])
+        # container.children[1].children = row1
+        # container.children[2].children = row2
+        # container.children[3].children = row3
         return container
 
 def recent_tracks():
@@ -677,7 +680,7 @@ def render_page_content(pathname):
         return [
             navbar_container,
             dbc.Col([about], width=5, className='column-container'),
-            dbc.Col([profile_image, links], width=1, className='column-container')
+            dbc.Col([profile_image, links], width=2, className='column-container')
         ]
     # If the user tries to reach a different page, return a 404 message
     # return dbc.Jumbotron(
