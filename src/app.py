@@ -492,42 +492,53 @@ about = html.Div(
             html.Br(),
             html.P("I hope you enjoy it!"),
         ],
-        className='about'
+        className='about-section'
 
 )
 
 links = html.Div(
     [
         #Make a link with an icon to its left
-        dbc.Button(
+        html.Div(
             [
-                html.I(className='fas fa-envelope-square'),
-                html.Span(' Email'),
+                dbc.Button(
+                    [
+                        html.I(className='fas fa-envelope-square'),
+                        html.Span(' Email'),
+                    ],
+                    href='mailto:f.nava.morales92@gmail.com',
+                    target='_blank',
+                ),
             ],
-            href='mailto:f.nava.morales92@gmail.com',
-            target='_blank',
             className='social-link',
         ),
-        dbc.Button(
+        html.Div(
             [
-                html.I(className='fa brands fa-github-alt'),
-                html.Span(' Github'),
+                dbc.Button(
+                    [
+                        html.I(className='fa brands fa-github-alt'),
+                        html.Span(' Github'),
+                    ],
+                    href='https://github.com/grimhood/',
+                    target='_blank',
+                ),
             ],
-            href='https://github.com/grimhood/',
-            target='_blank',
             className='social-link',
         ),
-        dbc.Button(
+        html.Div(
             [
-                html.I(className='fab fa-linkedin'),
-                html.Span(' LinkedIn'),
+                dbc.Button(
+                    [
+                        html.I(className='fab fa-linkedin'),
+                        html.Span(' LinkedIn'),
+                    ],
+                    href='https://www.linkedin.com/in/navamorales/',
+                    target='_blank',
+                ),
             ],
-            href='https://www.linkedin.com/in/navamorales/',
-            target='_blank',
             className='social-link',
-        )
-    ],
-    className='links'
+        ),
+    ]
 )
 
 

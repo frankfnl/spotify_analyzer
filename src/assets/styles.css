@@ -260,8 +260,8 @@ a {
     color: white;
 }
 
-.about {
-    color: white;
+.about-section {
+    color: white !important;
 }
 
 .icon {
