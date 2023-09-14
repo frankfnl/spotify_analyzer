@@ -397,7 +397,7 @@ header = html.P(
         'Spotify Dashboard ',
         html.A(
             '(by Francisco Nava)',
-            href='https://github.com/grimhood/',
+            href='https://github.com/frankfnl/',
             target='_blank',
             className='link-header'
         )
@@ -493,7 +493,7 @@ about = html.Div(
             html.Br(),
             html.P('Here, I present you my personal Spotify dashboard, an interactive web application built'),
             html.P("using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
-            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/grimhood/', target='_blank',)]),
+            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/frankfnl/', target='_blank',)]),
             html.Br(),
             html.P("I hope you enjoy it!"),
         ],
@@ -524,7 +524,7 @@ links = html.Div(
                         html.I(className='fa brands fa-github-alt'),
                         html.Span(' Github'),
                     ],
-                    href='https://github.com/grimhood/',
+                    href='https://github.com/frankfnl/',
                     target='_blank',
                 ),
             ],
