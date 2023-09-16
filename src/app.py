@@ -27,7 +27,7 @@ app = Dash(
             'crossorigin': 'anonymous',
         },
     ],
-    meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}])
+)
 server = app.server
 app.title = 'Spotify Dashboard'
 
@@ -437,17 +437,20 @@ navbar = dbc.Nav(
         dbc.NavItem(dbc.NavLink('Top Tracks & Artists', active= 'exact', href='/top/')),
         dbc.NavItem(dbc.NavLink('About', active= 'exact', href='/about/')),
     ],
+    id='navbar',
     vertical='lg',
     pills=True,
     fill=True,
+    justified=True,
 )
-navbar_container = dbc.Col([navbar], width=1, className='column-container')
+navbar_container = dbc.Col([navbar], xs=12, lg=1, className='column-container')
 dropdown_options = [{'label': f'Week {x}', 'value': x} for x in range(0, 53)]
 dropdown_week = html.Div([dcc.Dropdown(options=dropdown_options, value=0, id='dropdown-week', maxHeight=150)])
 control_title = html.H4('Select', className='section-header')
 navbar_container_dropdown = dbc.Col(
     className='column-container',
-    width=1,
+    xs=12,
+    lg=1,
     children=[
         html.Div(
             [
@@ -569,15 +572,39 @@ app.clientside_callback(
     """
     function(href) {
         var window_height = window.innerHeight;
-        return [window_height]
+        var window_width = window.innerWidth;
+        return [window_height, window_width]
     }
     """,
     Output('stored-window-size','data'),
     Input('url', 'href'),
 )
 
-
 #Callbacks
+@app.callback(
+    Output('main-container', 'style'),
+    Input('stored-window-size', 'data'),
+)    
+def resize_main_container(window_size):
+    if window_size[1] < 800:
+        return {
+            'background-color': 'rgb(224, 56, 134)',
+            'background-image': 'linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)',
+            '-webkit-transition': 'background 1s ease',
+            'transition': 'background 1s ease',
+            'padding': '2rem',
+            'height': '100%'
+        }
+    else:
+        return {
+            'background-color': 'rgb(224, 56, 134)',
+            'background-image': 'linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)',
+            '-webkit-transition': 'background 1s ease',
+            'transition': 'background 1s ease',
+            'padding': '2rem',
+            'height': '100vh'
+        }
+
 @app.callback(
     Output('stored-heatmap-yearly', 'data'),
     Input('dummy', 'children'),
@@ -611,9 +638,9 @@ def top_tracks_callback(value):
 )
 def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     title1=html.H4('Yearly listening patterns', className='section-header section-header-heatmap')
-    height = window_size[0] *0.35
     fig_yearly = pd.read_json(heatmap_yearly_json, orient='split').copy()
     fig_yearly = df_to_heatmap(fig_yearly)
+    height = window_size[0] *0.35
     fig_yearly.update_layout(height=height)
     listening_patterns_yearly = html.Div([dcc.Graph(figure=fig_yearly)], className='heatmap')
     return [title1, listening_patterns_yearly]
@@ -657,9 +684,9 @@ def render_page_content(pathname):
     if pathname in landing_pathnames:
         return [
             navbar_container,
-            dbc.Col([card_recent_tracks], width=2, className='column-container'),
-            dbc.Col([card_top_tracks, tracks_range_radio], width=4, className='column-container'),
-            dbc.Col([profile_image, card_user_stats], width=2, className='column-container')
+            dbc.Col([card_recent_tracks], xs=12, lg=2, className='column-container'),
+            dbc.Col([card_top_tracks, tracks_range_radio], xs=12, lg=4, className='column-container'),
+            dbc.Col([profile_image, card_user_stats], xs=12, lg=2, className='column-container')
         ]
     elif pathname == '/listening_patterns/':
         return [
@@ -669,28 +696,28 @@ def render_page_content(pathname):
                     html.Div(id='listening-patterns-yearly'),
                     dbc.Spinner(html.Div(id='listening-patterns-weekly'), color="primary")
                 ],
-                width=8,
+                xs=12, lg=8,
                 className='column-container'
             )
         ]
     elif pathname == '/top/':
         return [
             navbar_container,
-            dbc.Col([dbc.Spinner(html.Div(id='top-artists-tracks'), color="primary")], width=8, className='column-container')
+            dbc.Col([dbc.Spinner(html.Div(id='top-artists-tracks'), color="primary")], xs=12, lg=8, className='column-container')
         ]
     elif pathname == '/about/':
         return [
             navbar_container,
-            dbc.Col([about], width=5, className='column-container'),
+            dbc.Col([about], xs=7, lg=5, className='column-container'),
             dbc.Col(
                 [
                 dbc.Row(
                     [
-                        dbc.Col([profile_image, links],width=12),
+                        dbc.Col([profile_image, links],lg=12),
                     ],
                     justify='center'
                 )
-            ], width=1, className='column-container')
+            ], xs=4, lg=1, className='column-container')
         ]
     # If the user tries to reach a different page, return a 404 message
     # return dbc.Jumbotron(
