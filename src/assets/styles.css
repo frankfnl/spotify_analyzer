@@ -277,3 +277,43 @@ a {
     margin-top: 2rem;
     text-align: center;
 }
+
+/* For mobile phones: */
+@media only screen and (max-width: 670px) {
+    .nav-fill .nav-item .nav-link, .nav-justified .nav-item .nav-link {
+        padding: 0.3rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0rem;
+        font-size: 14px;
+    }
+
+    #main-container {
+        padding: 0.5rem;
+        padding-top: 1rem;
+    }
+
+    .app-header, .link-header {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .link-header {
+        font-size: 1rem !important;
+    }
+
+    #navbar-container {
+        order: -4;
+    }
+
+    #user-stats-container {
+        order: -3;
+    }
+
+    #top-tracks-container {
+        order: -2;
+    }
+
+    #recent-tracks-container {
+        order: -1;
+    }
+}

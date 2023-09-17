@@ -443,7 +443,7 @@ navbar = dbc.Nav(
     fill=True,
     justified=True,
 )
-navbar_container = dbc.Col([navbar], xs=12, lg=1, className='column-container')
+navbar_container = dbc.Col([navbar], xs=12, lg=1, className='column-container', id='navbar-container')
 dropdown_options = [{'label': f'Week {x}', 'value': x} for x in range(0, 53)]
 dropdown_week = html.Div([dcc.Dropdown(options=dropdown_options, value=0, id='dropdown-week', maxHeight=150)])
 control_title = html.H4('Select', className='section-header')
@@ -585,8 +585,10 @@ app.clientside_callback(
     Output('main-container', 'style'),
     Input('stored-window-size', 'data'),
 )    
-def resize_main_container(window_size):
-    if window_size[1] < 800:
+def style_main_container(window_size):
+    height = window_size[0]
+    width = window_size[1]
+    if width < height:
         return {
             'background-color': 'rgb(224, 56, 134)',
             'background-image': 'linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)',
@@ -684,9 +686,9 @@ def render_page_content(pathname):
     if pathname in landing_pathnames:
         return [
             navbar_container,
-            dbc.Col([card_recent_tracks], xs=12, lg=2, className='column-container'),
-            dbc.Col([card_top_tracks, tracks_range_radio], xs=12, lg=4, className='column-container'),
-            dbc.Col([profile_image, card_user_stats], xs=12, lg=2, className='column-container')
+            dbc.Col([card_recent_tracks], xs=12, lg=2, className='column-container', id='recent-tracks-container'),
+            dbc.Col([card_top_tracks, tracks_range_radio], xs=12, lg=4, className='column-container', id='top-tracks-container'),
+            dbc.Col([profile_image, card_user_stats], xs=12, lg=2, className='column-container', id='user-stats-container')
         ]
     elif pathname == '/listening_patterns/':
         return [
