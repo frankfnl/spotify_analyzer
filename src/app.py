@@ -523,7 +523,7 @@ dcc.Location(id='url'),
 
 about = html.Div(
         [
-            html.P("I have always wondered what my personal listening patterns? 🎵"),
+            html.P("I have always wondered what my music listening habits are 🎵."),
             html.P("That's why I created this dashboard to get to know, understand and visualize 📈 the relationship with my favorite music."),
             html.P("From a personal overview, to listening patterns, and top tracks/artists."),
             html.P("Here, I present you my personal Spotify dashboard 🎉. An interactive web application built using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
