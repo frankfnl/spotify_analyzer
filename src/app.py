@@ -523,16 +523,13 @@ dcc.Location(id='url'),
 
 about = html.Div(
         [
-            html.P("Have you ever wondered what are your personal listening patterns?"),
-            html.P("You can now engage with this dashboard to get to know, understand and visualize my favorite music."),
+            html.P("I have always wondered what my personal listening patterns? 🎵"),
+            html.P("That's why I created this dashboard to get to know, understand and visualize 📈 the relationship with my favorite music."),
             html.P("From a personal overview, to listening patterns, and top tracks/artists."),
+            html.P("Here, I present you my personal Spotify dashboard 🎉. An interactive web application built using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
+            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/frankfnl/', target='_blank')]),
             html.Br(),
-            html.Br(),
-            html.P('Here, I present you my personal Spotify dashboard, an interactive web application built'),
-            html.P("using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
-            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/frankfnl/', target='_blank',)]),
-            html.Br(),
-            html.P("I hope you enjoy it!"),
+            html.P("I hope you enjoy it! 💖 🚀"),
         ],
         className='about-section'
 
@@ -767,26 +764,10 @@ def render_page_content(pathname):
         ]
     elif pathname == '/about/':
         return [
-            navbar_container,
-            dbc.Col([about], xs=7, lg=5, className='column-container'),
-            dbc.Col(
-                [
-                dbc.Row(
-                    [
-                        dbc.Col([profile_image, links],lg=12),
-                    ],
-                    justify='center'
-                )
-            ], xs=4, lg=1, className='column-container')
+                    navbar_container,
+                    dbc.Col([about], xs=12, lg=4, className='column-container'),
+                    dbc.Col([profile_image, links],xs=12, lg=1, className='column-container')
         ]
-    # If the user tries to reach a different page, return a 404 message
-    # return dbc.Jumbotron(
-    #     [
-    #         html.H1('404: Not found', className='text-danger'),
-    #         html.Hr(),
-    #         html.P(f'The pathname {pathname} was not recognised...'),
-    #     ]
-    # )
 
 
 if __name__ == '__main__':

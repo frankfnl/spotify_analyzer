@@ -324,8 +324,12 @@ a {
     .controls {
         padding-top: 1rem;
     }
-    
+
     .section-header-heatmap {
         font-size: 1rem;
-    }  
+    }
+
+    .about-section {
+        text-align: justify;
+    }
 }
