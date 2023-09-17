@@ -354,7 +354,7 @@ def top_artists_bar_graph(window_width):
             zeroline = False,
             showline = False,
             showgrid = False,
-            side = 'right'
+            #side = 'right'
         ),
         xaxis = dict(
             zeroline = False,
@@ -367,7 +367,7 @@ def top_artists_bar_graph(window_width):
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
     if window_width < 670:
-        fig.update_traces(y=[y[:7] for y in df['artistName']])
+        fig.update_yaxes(showticklabels=False)
     fig.update_xaxes(title_text='Minutes Listened')
     return fig
 
@@ -425,8 +425,7 @@ def top_tracks_bar_graph(window_width):
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
     if window_width < 670:
-        fig.update_traces(y=[y[:7] for y in df['trackName']])
-        #fig.update_yaxes(ticklabelposition="inside top", title=None)
+        fig.update_yaxes(showticklabels=False)
     fig.update_xaxes(title_text='Minutes Listened')
     return fig
 
