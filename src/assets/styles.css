@@ -278,6 +278,10 @@ a {
     text-align: center;
 }
 
+.week-title {
+    margin-top: 2rem;
+}
+
 /* For mobile phones: */
 @media only screen and (max-width: 670px) {
     .nav-fill .nav-item .nav-link, .nav-justified .nav-item .nav-link {
@@ -317,6 +321,10 @@ a {
         order: -1;
     }
 
+    .controls {
+        padding-top: 1rem;
+    }
+    
     .section-header-heatmap {
         font-size: 1rem;
     }  

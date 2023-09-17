@@ -246,6 +246,7 @@ def df_to_heatmap_v(df):
         df,
         labels=dict(x='Day', y='Time', color='Count', title='Listening activity heatmap'),
         color_continuous_scale='inferno',
+        aspect="auto",
     )
     fig.update_layout(
         xaxis = dict(
@@ -270,7 +271,7 @@ def df_to_heatmap_v(df):
         title_font_color='white',
         paper_bgcolor='rgb(39,38,38)',
         plot_bgcolor='rgb(0,0,0)',
-        #margin=dict(t=20,b=20,l=20,r=20),
+        margin=dict(t=20,b=20,l=0,r=0),
     )
     fig.update(data=[{'customdata': df,
         'hovertemplate':
@@ -699,7 +700,7 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     Input('dropdown-week', 'value'),
 )
 def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
-    title=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap')
+    title=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap week-title')
     df = pd.read_json(heatmap_weekly_json[week], orient='split').copy()
     height = window_size[0] *0.35
     width = window_size[1]
