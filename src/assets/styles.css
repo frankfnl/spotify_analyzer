@@ -316,4 +316,8 @@ a {
     #recent-tracks-container {
         order: -1;
     }
+
+    .section-header-heatmap {
+        font-size: 1rem;
+    }  
 }

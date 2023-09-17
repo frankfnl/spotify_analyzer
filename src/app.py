@@ -199,7 +199,7 @@ def user_stats():
     )
     return stats
 
-def df_to_heatmap(df):
+def df_to_heatmap_h(df):
     #Create the heatmap graph
     fig = px.imshow(
         df,
@@ -240,6 +240,47 @@ def df_to_heatmap(df):
     }])
     return fig
 
+def df_to_heatmap_v(df):
+    #Create the heatmap graph
+    fig = px.imshow(
+        df,
+        labels=dict(x='Day', y='Time', color='Count', title='Listening activity heatmap'),
+        color_continuous_scale='inferno',
+    )
+    fig.update_layout(
+        xaxis = dict(
+            tickmode = 'array',
+            tickvals = [*range(0, 7, 1)],
+            ticktext = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+            zeroline = False,
+            showline = False,
+            showgrid = False,
+        ),
+        yaxis = dict(
+            tickmode = 'array',
+            tickvals = [*range(0, 24, 1)],
+            ticktext = ['12AM','1AM','2AM','3AM','4AM','5AM','6AM','7AM','8AM','9AM',
+                        '10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM',
+                        '8PM','9PM','10PM','11PM'],
+            zeroline = False,
+            showline = False,
+            showgrid = False
+        ),
+        font_color='white',
+        title_font_color='white',
+        paper_bgcolor='rgb(39,38,38)',
+        plot_bgcolor='rgb(0,0,0)',
+        margin=dict(t=20,b=20,l=20,r=20),
+    )
+    fig.update(data=[{'customdata': df,
+        'hovertemplate':
+            '<br><b>Day </b>: %{y}'+
+            '<br><b>Time </b>: %{x}'+
+            '<br><b>Count </b>: %{z}<br>'+
+            '<extra></extra>',
+    }])
+    return fig
+
 def heatmap_yearly():
     #Create a matrix dataframe with the number of tracks played per hour (rows) and day of the week (columns)
     df = spotify_df.copy()
@@ -253,7 +294,6 @@ def heatmap_yearly():
     heatmap.sort_values(by=['day', 'hour'], inplace=True)
     heatmap.reset_index(inplace=True)
     heatmap.drop(columns='index', inplace=True)
-    heatmap = heatmap.pivot(index='day', columns='hour', values='Number of songs listened')
     return heatmap
 
 def heatmap_weekly():
@@ -271,15 +311,8 @@ def heatmap_weekly():
     heatmap.drop(columns='index', inplace=True)
     heatmap = heatmap.fillna(0)
     week_list = heatmap['week'].astype(str).unique().tolist()
-
-    def pivot_df(df):
-        df = df.copy()
-        df = df.pivot(index='day', columns='hour', values='Number of songs listened')
-        df.reset_index(inplace=True)
-        return df
-
     #Create a list of dataframes, one for each week of the year
-    heatmap_list = [pivot_df(heatmap[heatmap['week'] == week]) for week in heatmap['week'].unique()]
+    heatmap_list = [heatmap[heatmap['week'] == week] for week in heatmap['week'].unique()]
     #Create a list containing heatmap figures for each week of the year
     json_list = [df.to_json(date_format='iso', orient='split') for df in heatmap_list]
     return json_list
@@ -640,11 +673,25 @@ def top_tracks_callback(value):
 )
 def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     title1=html.H4('Yearly listening patterns', className='section-header section-header-heatmap')
-    fig_yearly = pd.read_json(heatmap_yearly_json, orient='split').copy()
-    fig_yearly = df_to_heatmap(fig_yearly)
-    height = window_size[0] *0.35
-    fig_yearly.update_layout(height=height)
-    listening_patterns_yearly = html.Div([dcc.Graph(figure=fig_yearly)], className='heatmap')
+    df = pd.read_json(heatmap_yearly_json, orient='split').copy()
+    height = window_size[0] * 0.35
+    width = window_size[1]
+
+    if width < 670:
+        df = df.pivot(index='hour', columns='day', values='Number of songs listened')
+        df.reset_index(inplace=True)
+        fig = df_to_heatmap_v(df)
+        #fig.update_layout(width=width)
+    else:
+        df = df.pivot(index='day', columns='hour', values='Number of songs listened')
+        df.reset_index(inplace=True)
+        fig = df_to_heatmap_h(df)
+        fig.update_layout(height=height)
+
+    if width < 670:
+        fig.update_layout(yaxis = dict(tickfont = dict(size=8)))
+        fig.update_layout(xaxis = dict(tickfont = dict(size=8)))
+    listening_patterns_yearly = html.Div([dcc.Graph(figure=fig)], className='heatmap')
     return [title1, listening_patterns_yearly]
 
 @app.callback(
@@ -655,10 +702,24 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
 )
 def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     title=html.H4(f'Weekly listening patterns (Week {week})', className='section-header section-header-heatmap')
+    df = pd.read_json(heatmap_weekly_json[week], orient='split').copy()
     height = window_size[0] *0.35
-    heatmap_df = pd.read_json(heatmap_weekly_json[week], orient='split').copy()
-    fig = df_to_heatmap(heatmap_df)
-    fig.update_layout(height=height)
+    width = window_size[1]
+
+    if width < 670:
+        df = df.pivot(index='hour', columns='day', values='Number of songs listened')
+        df.reset_index(inplace=True)
+        fig = df_to_heatmap_v(df)
+        fig.update_layout(width=width)
+    else:
+        df = df.pivot(index='day', columns='hour', values='Number of songs listened')
+        df.reset_index(inplace=True)
+        fig = df_to_heatmap_h(df)
+        fig.update_layout(height=height)
+
+    if width < 670:
+        fig.update_layout(yaxis = dict(tickfont = dict(size=8)))
+        fig.update_layout(xaxis = dict(tickfont = dict(size=8)))
     listening_patterns_weekly = html.Div([dcc.Graph(figure=fig)], className='heatmap')
     return [title, listening_patterns_weekly]
 
