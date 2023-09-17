@@ -318,7 +318,7 @@ def heatmap_weekly():
     json_list = [df.to_json(date_format='iso', orient='split') for df in heatmap_list]
     return json_list
 
-def top_artists_bar_graph():
+def top_artists_bar_graph(window_width):
     df = spotify_df.copy()
     top_artists = df.groupby('artistName').sum()
     top_artists.reset_index(inplace=True)
@@ -366,10 +366,12 @@ def top_artists_bar_graph():
         margin=dict(t=25,b=20,l=20,r=20),
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
+    if window_width < 670:
+        fig.update_traces(y=[y[:7] for y in df['artistName']])
     fig.update_xaxes(title_text='Minutes Listened')
     return fig
 
-def top_tracks_bar_graph():
+def top_tracks_bar_graph(window_width):
     df = spotify_df.copy()
     top_tracks = df.groupby(['artistName', 'trackName']).sum()
     top_tracks.reset_index(inplace=True)
@@ -422,6 +424,9 @@ def top_tracks_bar_graph():
         margin=dict(t=25,b=20,l=20,r=20),
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
+    if window_width < 670:
+        fig.update_traces(y=[y[:7] for y in df['trackName']])
+        #fig.update_yaxes(ticklabelposition="inside top", title=None)
     fig.update_xaxes(title_text='Minutes Listened')
     return fig
 
@@ -723,8 +728,9 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
 )
 def top_artists_tracks_callback(window_size):
     height = window_size[0] *0.40
-    top_artists_fig = top_artists_bar_graph()
-    top_tracks_fig = top_tracks_bar_graph()
+    width = window_size[1]
+    top_artists_fig = top_artists_bar_graph(width)
+    top_tracks_fig = top_tracks_bar_graph(width)
     top_artists_fig.update_layout(height=height)
     top_tracks_fig.update_layout(height=height)
     return [
@@ -741,9 +747,27 @@ def render_page_content(pathname):
     if pathname in landing_pathnames:
         return [
             navbar_container,
-            dbc.Col([card_recent_tracks], xs=12, lg=2, className='column-container', id='recent-tracks-container'),
-            dbc.Col([card_top_tracks, tracks_range_radio], xs=12, lg=4, className='column-container', id='top-tracks-container'),
-            dbc.Col([profile_image, card_user_stats], xs=12, lg=2, className='column-container', id='user-stats-container')
+            dbc.Col(
+                [card_recent_tracks],
+                xs=12,
+                lg=2,
+                className='column-container',
+                id='recent-tracks-container'
+            ),
+            dbc.Col(
+                [card_top_tracks, tracks_range_radio],
+                xs=12,
+                lg=4,
+                className='column-container',
+                id='top-tracks-container'
+            ),
+            dbc.Col(
+                [profile_image, card_user_stats],
+                xs=12,
+                lg=2,
+                className='column-container',
+                id='user-stats-container'
+            )
         ]
     elif pathname == '/listening_patterns/':
         return [
@@ -760,13 +784,33 @@ def render_page_content(pathname):
     elif pathname == '/top/':
         return [
             navbar_container,
-            dbc.Col([dbc.Spinner(html.Div(id='top-artists-tracks'), color="primary")], xs=12, lg=8, className='column-container')
+            dbc.Col(
+                [
+                    dbc.Spinner(
+                        html.Div(id='top-artists-tracks'),
+                        color="primary"
+                    )
+                ],
+                xs=12,
+                lg=8,
+                className='column-container'
+            )
         ]
     elif pathname == '/about/':
         return [
-                    navbar_container,
-                    dbc.Col([about], xs=12, lg=4, className='column-container'),
-                    dbc.Col([profile_image, links],xs=12, lg=1, className='column-container')
+            navbar_container,
+            dbc.Col(
+                [about],
+                xs=12,
+                lg=4,
+                className='column-container'
+            ),
+            dbc.Col(
+                [profile_image, links],
+                xs=12,
+                lg=1,
+                className='column-container'
+            )
         ]
 
 
