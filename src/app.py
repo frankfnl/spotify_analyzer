@@ -270,7 +270,7 @@ def df_to_heatmap_v(df):
         title_font_color='white',
         paper_bgcolor='rgb(39,38,38)',
         plot_bgcolor='rgb(0,0,0)',
-        margin=dict(t=20,b=20,l=20,r=20),
+        #margin=dict(t=20,b=20,l=20,r=20),
     )
     fig.update(data=[{'customdata': df,
         'hovertemplate':
@@ -679,12 +679,10 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
 
     if width < 670:
         df = df.pivot(index='hour', columns='day', values='Number of songs listened')
-        df.reset_index(inplace=True)
         fig = df_to_heatmap_v(df)
-        #fig.update_layout(width=width)
+        fig.update_layout(width=width)
     else:
         df = df.pivot(index='day', columns='hour', values='Number of songs listened')
-        df.reset_index(inplace=True)
         fig = df_to_heatmap_h(df)
         fig.update_layout(height=height)
 
@@ -708,12 +706,10 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
 
     if width < 670:
         df = df.pivot(index='hour', columns='day', values='Number of songs listened')
-        df.reset_index(inplace=True)
         fig = df_to_heatmap_v(df)
         fig.update_layout(width=width)
     else:
         df = df.pivot(index='day', columns='hour', values='Number of songs listened')
-        df.reset_index(inplace=True)
         fig = df_to_heatmap_h(df)
         fig.update_layout(height=height)
 
