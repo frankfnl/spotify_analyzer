@@ -457,7 +457,7 @@ profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), classN
 profile_image = html.Div(
     [
         html.A(
-            html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'),
+            html.Img(src = app.get_asset_url('profile.jpg'), id='profile-image', className='profile-image'),
             href='https://open.spotify.com/user/1277049780',
             target='_blank'
         )
@@ -584,6 +584,12 @@ links = html.Div(
     ]
 )
 
+profile_image_tooltip = dbc.Tooltip(
+    'Check my Spotify profile!',
+    target='profile-image',
+    placement='top',
+    is_open=True,
+)
 
 #App Layout
 app.layout = dbc.Container(
@@ -593,6 +599,7 @@ app.layout = dbc.Container(
         dcc.Store(id='stored-window-size'),
         dcc.Store(id='stored-heatmap-yearly'),
         dcc.Store(id='stored-heatmap-weekly'),
+        profile_image_tooltip,
         content
     ],
     className='dbc',
