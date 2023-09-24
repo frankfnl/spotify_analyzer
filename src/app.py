@@ -185,8 +185,12 @@ def user_stats():
                 [
                     dbc.Row(
                         [
-                            html.P(k, className='title-stats'),
-                            html.P(v, className='value-stats')
+                            dbc.Col(
+                                [
+                                    html.P(k, className='title-stats'),
+                                    html.P(v, className='value-stats')
+                                ]
+                            )
                         ],
                         className='stat-card',
                         justify='center'
