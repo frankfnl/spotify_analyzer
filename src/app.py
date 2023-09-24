@@ -29,7 +29,7 @@ app = Dash(
     ],
 )
 server = app.server
-app.title = 'Spotify Dashboard'
+app.title = 'Spotify Analyzer'
 
 #Load environment variables
 load_dotenv()
@@ -432,7 +432,7 @@ def top_tracks_bar_graph(window_width):
 #App Layout Components
 header = html.P(
     [
-        'Spotify Dashboard ',
+        'Spotify Analyzer ',
         html.A(
             '(by Francisco Nava)',
             href='https://github.com/frankfnl/',
@@ -531,7 +531,7 @@ about = html.Div(
             html.P("That's why I created this dashboard to get to know, understand and visualize 📈 the relationship with my favorite music."),
             html.P("From a personal overview, to listening patterns, and top tracks/artists."),
             html.P("Here, I present you my personal Spotify dashboard 🎉. An interactive web application built using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."),
-            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/frankfnl/', target='_blank')]),
+            html.P(["The application is hosted on Render and the code is available on my ", html.A("Github.", href='https://github.com/frankfnl/spotify_analyzer', target='_blank')]),
             html.Br(),
             html.P("I hope you enjoy it! 💖 🚀"),
         ],

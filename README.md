@@ -1,43 +1,40 @@
 # Spotify Analyzer
 
-Personal app to analyze Spotify profile data
+I have always wondered what my music listening habits are 🎵.
+That's why I created this dashboard to get to know, understand and visualize 📈 the relationship with my favorite music.
+From a personal overview, to listening patterns, and top tracks/artists.
+
+Here, I present you my personal Spotify dashboard 🎉. An interactive web application built using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash.
+The application is live on [Render](https://spotify-analyzer-b1vf.onrender.com/) and the code is available on my [Github](https://github.com/frankfnl/spotify_analyzer)
 
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](src\assets\screenshot.png)
 
+## Installation
+Clone this repository and run pip to install the required packages (Python 3.9)
 
-## Environment Variables
+```python
+py -m pip install requirements.txt
+```
 
-To run this project, you will need to add the following environment variables to your .env file
+To run the app locally navigate to `src` and start with
 
-`API_KEY`
-
-`ANOTHER_API_KEY`
-
-
-## Authors
-
-- [@octokatherine](https://www.github.com/octokatherine)
-
+```python
+py -m app
+```
 
 ## 🚀 About Me
-I'm a full stack developer...
+🔬 From Biotech to Bytes 🐍
+
+Former biotech engineer 🧪 now wandering through the world of Python 🐍 with a passion for decoding data into art 📊🎨. Catch me crafting code for harmonious music projects 🎶 and unraveling the secrets of life sciences 🧬 on this digital journey! 🚀 #BiotechByDayCoderByNight
+
+- [@frankfnl](https://www.github.com/frankfnl)
 
 
 ## Acknowledgements
-
+## Authors and acknowledgment
+ - ![Francisco Nava Morales](https://img.shields.io/badge/Francisco%20Nava%20Morales-Author-green?style=flat)
  - [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
- - [Awesome README](https://github.com/matiassingers/awesome-readme)
- - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
-
-
-## Badges
-
-Add badges from somewhere like: [shields.io](https://shields.io/)
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
-
+ - [Charming Data](https://www.youtube.com/@CharmingData)
