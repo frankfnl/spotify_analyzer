@@ -9,8 +9,7 @@ The application is live on [Render](https://spotify-analyzer-b1vf.onrender.com/)
 
 
 ## Screenshots
-
-![App Screenshot](src\assets\screenshot.png)
+![App Screenshot](/src/assets/screenshot.png)
 
 ## Installation
 Clone this repository and run pip to install the required packages (Python 3.9)
