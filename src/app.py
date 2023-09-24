@@ -340,11 +340,24 @@ def top_artists_bar_graph(window_width):
         '#e88b44', '#ed9745', '#ed9745', '#ed9745', '#ed9745'
     ]
 
+    if window_width < 670:
+        orientation = 'v'
+        x=top_artists['artistName']
+        y=top_artists['Minutes Listened']
+        x_axes_title = 'Artist Name'
+        y_axes_title = 'Minutes Listened'
+    else:
+        orientation = 'h'
+        x=top_artists['Minutes Listened']
+        y=top_artists['artistName']
+        x_axes_title = 'Minutes Listened'
+        y_axes_title = 'Artist Name'
+
     fig = go.Figure(data=[go.Bar(
-        x=top_artists['Minutes Listened'],
-        y=top_artists['artistName'],
+        x=x,
+        y=y,
         marker_color=colors,
-        orientation='h',
+        orientation=orientation,
         hovertemplate =
             '<br><b>Artist Name </b>: %{y}'+
             '<br><b>Minutes listened </b>: %{x}<br>'+
@@ -370,9 +383,8 @@ def top_artists_bar_graph(window_width):
         margin=dict(t=25,b=20,l=20,r=20),
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
-    if window_width < 670:
-        fig.update_yaxes(showticklabels=False)
-    fig.update_xaxes(title_text='Minutes Listened')
+    fig.update_xaxes(title_text=x_axes_title)
+    fig.update_yaxes(title_text=y_axes_title)
     return fig
 
 def top_tracks_bar_graph(window_width):
@@ -395,11 +407,26 @@ def top_tracks_bar_graph(window_width):
         '#D56ABE', '#C56AC0', '#9870BF', '#8974BB', '#6C75BB'
     ]
 
+    if window_width < 670:
+        orientation = 'v'
+        x=top_tracks['trackName']
+        y=top_tracks['Minutes Listened']
+        side = 'left'
+        x_axes_title = 'Track Name'
+        y_axes_title = 'Minutes Listened'
+    else:
+        orientation = 'h'
+        x=top_tracks['Minutes Listened']
+        y=top_tracks['trackName']
+        side = 'right'
+        x_axes_title = 'Minutes Listened'
+        y_axes_title = 'Track Name'
+
     fig = go.Figure(data=[go.Bar(
-        x=top_tracks['Minutes Listened'],
-        y=top_tracks['trackName'],
+        x=x,
+        y=y,
         marker_color=colors,
-        orientation='h',
+        orientation=orientation,
         hovertemplate =
             '<br><b>Artist Name </b>: %{hovertext}'+
             '<br><b>Track </b>: %{y}'+
@@ -416,7 +443,7 @@ def top_tracks_bar_graph(window_width):
             zeroline = False,
             showline = False,
             showgrid = False,
-            side = 'right'
+            side = side
         ),
         xaxis = dict(
             zeroline = False,
@@ -428,9 +455,8 @@ def top_tracks_bar_graph(window_width):
         margin=dict(t=25,b=20,l=20,r=20),
     )
     fig.update_traces(marker=dict(line=dict(width=0)))
-    if window_width < 670:
-        fig.update_yaxes(showticklabels=False)
-    fig.update_xaxes(title_text='Minutes Listened')
+    fig.update_xaxes(title_text=x_axes_title)
+    fig.update_yaxes(title_text=y_axes_title)
     return fig
 
 #App Layout Components
@@ -741,8 +767,9 @@ def top_artists_tracks_callback(window_size):
     width = window_size[1]
     top_artists_fig = top_artists_bar_graph(width)
     top_tracks_fig = top_tracks_bar_graph(width)
-    top_artists_fig.update_layout(height=height)
-    top_tracks_fig.update_layout(height=height)
+    if width > 670:
+        top_artists_fig.update_layout(height=height)
+        top_tracks_fig.update_layout(height=height)
     return [
         html.Div([dcc.Graph(figure=top_tracks_fig)], className='heatmap'),
         html.Div([dcc.Graph(figure=top_artists_fig)], className='heatmap')
