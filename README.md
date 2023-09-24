@@ -18,7 +18,7 @@ Clone this repository and run pip to install the required packages (Python 3.9)
 py -m pip install requirements.txt
 ```
 
-To run the app locally navigate to `src` and start with
+To start the app locally navigate to `src` and run with
 
 ```python
 py -m app
