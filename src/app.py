@@ -47,7 +47,6 @@ current_directory = os.path.dirname(os.path.abspath(filename))
 current_directory = current_directory.replace('\\','/')
 spotify_data_path = Path(current_directory + '/streaming_history.csv')
 spotify_df = pd.read_csv(spotify_data_path)
-spotify_df['endTime'] = pd.to_datetime(spotify_df['endTime'], format='%Y-%m-%d %H:%M')
 
 class GetTopStats:
     def __init__(self):
@@ -298,6 +297,7 @@ def df_to_heatmap_v(df):
 def heatmap_yearly():
     #Create a matrix dataframe with the number of tracks played per hour (rows) and day of the week (columns)
     df = spotify_df.copy()
+    df['endTime'] = pd.to_datetime(df['endTime'], format='%Y-%m-%d %H:%M')
     df['hour'] = df['endTime'].dt.hour
     df['day'] = df['endTime'].dt.dayofweek
     heatmap = df.groupby(['day', 'hour']).count()
@@ -311,6 +311,7 @@ def heatmap_yearly():
 
 def heatmap_weekly():
     df = spotify_df.copy()
+    df['endTime'] = pd.to_datetime(df['endTime'], format='%Y-%m-%d %H:%M')
     df['hour'] = df['endTime'].dt.hour
     df['day'] = df['endTime'].dt.dayofweek
     df['week'] = df['endTime'].dt.isocalendar().week
