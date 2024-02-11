@@ -1,20 +1,25 @@
-import dash
-from dash import Dash, html, dcc, Output, Input, State, callback, ClientsideFunction
-from dash.exceptions import PreventUpdate
-from dotenv import load_dotenv
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-import dash_bootstrap_components as dbc
-import plotly.express as px
-import pandas as pd
-import plotly.graph_objs as go
-from flask import Flask
-from flask_caching import Cache
-import pathlib
+import inspect
 import json
-import inspect, os.path
+import os.path
+import pathlib
 from pathlib import Path
 import pickle
+from refresh import Refresh
+import requests
+
+
+from dash import Dash, html, dcc, Output, Input, State, callback, ClientsideFunction
+import dash
+from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dbc
+from dotenv import load_dotenv
+from flask import Flask
+from flask_caching import Cache
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
+from spotipy.oauth2 import SpotifyOAuth
+import spotipy
 
 #Initialize App
 dbc_css = 'https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css'
@@ -31,22 +36,48 @@ app = Dash(
 server = app.server
 app.title = 'Spotify Analyzer'
 
-#Load environment variables
-load_dotenv()
-
-#Spotify data
+#Spotify streaming history data
 filename = inspect.getframeinfo(inspect.currentframe()).filename
 current_directory = os.path.dirname(os.path.abspath(filename))
 current_directory = current_directory.replace('\\','/')
 spotify_data_path = Path(current_directory + '/streaming_history.csv')
 spotify_df = pd.read_csv(spotify_data_path)
 
+class GetTopStats:
+    def __init__(self):
+        self.spotify_token = ""
+        self.top_tracks = {}
+        self.recent_tracks = {}
+
+    def get_top_tracks(self, time_range, limit=12):
+        url = f"https://api.spotify.com/v1/me/top/tracks?time_range={time_range}&limit={limit}"
+        
+        response = requests.get(url, headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.spotify_token}"
+        })
+        
+        self.top_tracks = response.json()
+
+    def get_recently_played(self, limit=7):
+        url = f"https://api.spotify.com/v1/me/player/recently-played?limit={limit}"
+
+        response = requests.get(url, headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.spotify_token}"
+        })
+
+        self.recent_tracks = response.json()
+       
+    def call_refresh(self):
+        """Calls the refresh method from the Refresh class"""	
+        refreshCaller = Refresh()
+        self.spotify_token = refreshCaller.refresh()
 
 def top_track_div(item):
     image = dbc.CardImg(src=item['album']['images'][0]['url'], top=True, className='image-top-track')
     track_name = item['name']
     artist_name = item['artists'][0]['name']
-    track_id = f'Spotify ID: {item["id"]}'
     title = html.P(track_name, className='text-top-track')
     title = html.A(title, href=item['external_urls']['spotify'], target='_blank')
     subtitle = html.P(artist_name, className='subtitle-top-track')
@@ -90,74 +121,47 @@ def recent_track_div(item):
     return container_item
 
 def top_tracks(range):
-    # top_scope = 'user-top-read'
-    # sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=top_scope))
     dict_ranges = {
         'Last 4 Weeks' :    'short_term',
         'Last 6 Months':    'medium_term',
         'All Time':         'long_term'
     }
+    top = GetTopStats()
+    top.call_refresh()
+    top.get_top_tracks(time_range=dict_ranges[range])
+    title = html.H4(f'Top Tracks: {range}', className='section-header')
+    items = [top_track_div(item) for item in top.top_tracks['items']]
 
-    # results = sp_auth.current_user_top_tracks(time_range=dict_ranges[range], limit=12)
+    container = html.Div(
+        [
+            dbc.Row([dbc.Col([title])]),
+            dbc.Row([
+                dbc.Col(items[:3], width=6, lg=3),
+                dbc.Col(items[3:6], width=6, lg=3),
+                dbc.Col(items[6:9], width=6, lg=3),
+                dbc.Col(items[9:12], width=6, lg=3),
+            ]),
+        ],
+        className='top-tracks-card-container',
+    )
     
-    # # save dictionary to top_tracks.pkl file
-    # with open(f'top_tracks_{dict_ranges[range]}.pkl', 'wb') as fp:
-    #     pickle.dump(results, fp)
-    #     print('dictionary saved successfully to file')
-
-    # Read dictionary pkl file
-    top_tracks_path = Path(current_directory + f'/top_tracks_{dict_ranges[range]}.pkl')
-    with open(top_tracks_path, 'rb') as fp:
-        results = pickle.load(fp)
-        title = html.H4(f'Top Tracks: {range}', className='section-header')
-        items = [top_track_div(item) for item in results['items']]
-
-        container = html.Div(
-            [
-                dbc.Row([dbc.Col([title])]),
-                dbc.Row([
-                    dbc.Col(items[:3], width=6, lg=3),
-                    dbc.Col(items[3:6], width=6, lg=3),
-                    dbc.Col(items[6:9], width=6, lg=3),
-                    dbc.Col(items[9:12], width=6, lg=3),
-                ]),
-            ],
-            className='top-tracks-card-container',
-        )
-
-        # def row(items):
-        #     return dbc.Row([dbc.Col([i]) for i in items])
-        # row1 = row()
-        # row2 = row(items[4:8])
-        # row3 = row(items[8:12])
-        # container.children[1].children = row1
-        # container.children[2].children = row2
-        # container.children[3].children = row3
-        return container
+    return container
 
 def recent_tracks():
-    # recent_scope = 'user-read-recently-played'
-    # sp_auth = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=recent_scope))
-    # results = sp_auth.current_user_recently_played(limit=7)
-    # # save dictionary to top_tracks.pkl file
-    # with open('recent_tracks.pkl', 'wb') as fp:
-    #     pickle.dump(results, fp)
-    #     print('dictionary saved successfully to file')
-
-    # Read dictionary pkl file
-    recent_tracks_path = Path(current_directory + '/recent_tracks.pkl')
-    with open(recent_tracks_path, 'rb') as fp:
-        results = pickle.load(fp)
-        title = html.H4(f'Top Tracks: {range}', className='section-header')
-        items = [recent_track_div(item) for item in results['items']]
-        title = html.H4(f'Recently played', className='section-header')
-        children = [dbc.Row([dbc.Col([items[i]])]) for i in (range(len(items)))]
-        children.insert(0, dbc.Row([dbc.Col([title])]))
-        container = html.Div(
-            children,
-            className='top-tracks-card-container',
-        )
-        return container
+    top = GetTopStats()
+    top.call_refresh()
+    top.get_recently_played()
+    results = top.recent_tracks
+    title = html.H4(f'Top Tracks: {range}', className='section-header')
+    items = [recent_track_div(item) for item in results['items']]
+    title = html.H4(f'Recently played', className='section-header')
+    children = [dbc.Row([dbc.Col([items[i]])]) for i in (range(len(items)))]
+    children.insert(0, dbc.Row([dbc.Col([title])]))
+    container = html.Div(
+        children,
+        className='top-tracks-card-container',
+    )
+    return container
 
 def user_stats():
     df = spotify_df.copy()
