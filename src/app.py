@@ -42,6 +42,7 @@ current_directory = os.path.dirname(os.path.abspath(filename))
 current_directory = current_directory.replace('\\','/')
 spotify_data_path = Path(current_directory + '/streaming_history.csv')
 spotify_df = pd.read_csv(spotify_data_path)
+spotify_df['endTime'] = pd.to_datetime(spotify_df['endTime'], format='%Y-%m-%d %H:%M')
 
 class GetTopStats:
     def __init__(self):
@@ -293,7 +294,6 @@ def df_to_heatmap_v(df):
 def heatmap_yearly():
     #Create a matrix dataframe with the number of tracks played per hour (rows) and day of the week (columns)
     df = spotify_df.copy()
-    df['endTime'] = pd.to_datetime(df['endTime'], format='%Y-%m-%d %H:%M')
     df['hour'] = df['endTime'].dt.hour
     df['day'] = df['endTime'].dt.dayofweek
     heatmap = df.groupby(['day', 'hour']).count()
@@ -307,7 +307,6 @@ def heatmap_yearly():
 
 def heatmap_weekly():
     df = spotify_df.copy()
-    df['endTime'] = pd.to_datetime(df['endTime'], format='%Y-%m-%d %H:%M')
     df['hour'] = df['endTime'].dt.hour
     df['day'] = df['endTime'].dt.dayofweek
     df['week'] = df['endTime'].dt.isocalendar().week
@@ -487,7 +486,7 @@ tracks_range_radio = html.Div(
     className='radio-container',
 )
 
-profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'), className='profile-image-container')
+#profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'), className='profile-image-container')
 profile_image = html.Div(
     [
         html.A(
@@ -622,7 +621,8 @@ profile_image_tooltip = dbc.Tooltip(
     'Check my Spotify profile!',
     target='profile-image',
     placement='top',
-    is_open=True,
+    trigger=None,
+    id='profile-image-tooltip'
 )
 
 #App Layout
@@ -633,7 +633,6 @@ app.layout = dbc.Container(
         dcc.Store(id='stored-window-size'),
         dcc.Store(id='stored-heatmap-yearly'),
         dcc.Store(id='stored-heatmap-weekly'),
-        profile_image_tooltip,
         content
     ],
     className='dbc',
@@ -682,6 +681,16 @@ def style_main_container(window_size):
             'padding': '2rem',
             'height': '100vh'
         }
+
+@app.callback(
+    Output("profile-image-tooltip", "is_open"),
+    [Input('url', 'href')],
+)
+def create_bpa_sp_container(url):
+    if 'overview' in url:
+        return True
+    else:
+        return False
 
 @app.callback(
     Output('stored-heatmap-yearly', 'data'),
@@ -788,6 +797,7 @@ def render_page_content(pathname):
     if pathname in landing_pathnames:
         return [
             navbar_container,
+            profile_image_tooltip,
             dbc.Col(
                 [card_recent_tracks],
                 xs=12,
