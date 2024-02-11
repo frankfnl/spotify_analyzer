@@ -175,7 +175,6 @@ def user_stats():
     df['trackLength'] = df['msPlayed'] / 60000
     avg_track_length = round(df['trackLength'].mean(), 2)
 
-
     dict_stats = {
         'Minutes listened' : total_time_minutes,
         'Days listened' : total_time_days,
@@ -746,6 +745,7 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
 
 @app.callback(
     Output('listening-patterns-weekly', 'children'),
+    Output('dropdown-week', 'searchable'),
     Input('stored-window-size', 'data'),
     Input('stored-heatmap-weekly', 'data'),
     Input('dropdown-week', 'value'),
@@ -760,16 +760,18 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
         df = df.pivot(index='hour', columns='day', values='Number of songs listened')
         fig = df_to_heatmap_v(df)
         fig.update_layout(width=width)
+        searchable = False
     else:
         df = df.pivot(index='day', columns='hour', values='Number of songs listened')
         fig = df_to_heatmap_h(df)
         fig.update_layout(height=height)
+        searchable = True
 
     if width < 670:
         fig.update_layout(yaxis = dict(tickfont = dict(size=8)))
         fig.update_layout(xaxis = dict(tickfont = dict(size=8)))
     listening_patterns_weekly = html.Div([dcc.Graph(figure=fig)], className='heatmap')
-    return [title, listening_patterns_weekly]
+    return [title, listening_patterns_weekly], searchable
 
 @app.callback(
     Output('top-artists-tracks', 'children'),
