@@ -174,7 +174,7 @@ def user_stats():
     total_artists = df['artistName'].nunique()
     df['trackLength'] = df['msPlayed'] / 60000
     avg_track_length = round(df['trackLength'].mean(), 2)
-
+    
     dict_stats = {
         'Minutes listened' : total_time_minutes,
         'Days listened' : total_time_days,
@@ -686,7 +686,7 @@ def style_main_container(window_size):
     [Input('url', 'href')],
 )
 def create_bpa_sp_container(url):
-    if 'overview' in url:
+    if ('overview' in url) or (url == 'https://spotify-analyzer-b1vf.onrender.com/'):
         return True
     else:
         return False
