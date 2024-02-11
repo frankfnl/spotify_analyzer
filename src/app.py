@@ -4,13 +4,11 @@ import os.path
 import pathlib
 from pathlib import Path
 import pickle
-from refresh import Refresh
 import requests
 
-
 from dash import Dash, html, dcc, Output, Input, State, callback, ClientsideFunction
-import dash
 from dash.exceptions import PreventUpdate
+import dash
 import dash_bootstrap_components as dbc
 from dotenv import load_dotenv
 from flask import Flask
@@ -18,8 +16,8 @@ from flask_caching import Cache
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from spotipy.oauth2 import SpotifyOAuth
 import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 # Initialize App
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
