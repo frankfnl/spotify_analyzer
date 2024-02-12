@@ -1,20 +1,13 @@
 import inspect
-import json
 import os.path
-import pathlib
 from pathlib import Path
-import pickle
 from refresh import Refresh
 import requests
 
-from dash import Dash, html, dcc, Output, Input, State, callback, \
+from dash import Dash, html, dcc, Output, Input, callback, \
     clientside_callback
 from dash.exceptions import PreventUpdate
-import dash
 import dash_bootstrap_components as dbc
-from dotenv import load_dotenv
-from flask import Flask
-from flask_caching import Cache
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
@@ -452,7 +445,6 @@ def heatmap_weekly():
     heatmap.reset_index(inplace=True)
     heatmap.drop(columns="index", inplace=True)
     heatmap = heatmap.fillna(0)
-    week_list = heatmap["week"].astype(str).unique().tolist()
     # Create a list of dataframes, one for each week of the year
     heatmap_list = [
         heatmap[heatmap["week"] == week] for week in heatmap["week"].unique()
@@ -881,10 +873,20 @@ clientside_callback(
 def style_main_container(window_size):
     height = window_size[0]
     width = window_size[1]
+    background_image = (
+        "linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),"
+        "url(data:image/svg+xml;base64,"
+        "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMD"
+        "AiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJi"
+        "dWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHl"
+        "wZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIH"
+        "ZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsd"
+        "GVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)"
+    )
     if width < height:
         return {
             "background-color": "rgb(224, 56, 134)",
-            "background-image": "linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)",
+            "background-image": background_image,
             "-webkit-transition": "background 1s ease",
             "transition": "background 1s ease",
             "padding": "2rem",
@@ -893,7 +895,7 @@ def style_main_container(window_size):
     else:
         return {
             "background-color": "rgb(224, 56, 134)",
-            "background-image": "linear-gradient(rgba(0,0,0,.6) 0,#121212 100%),url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=)",
+            "background-image": background_image,
             "-webkit-transition": "background 1s ease",
             "transition": "background 1s ease",
             "padding": "2rem",
