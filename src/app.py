@@ -21,7 +21,10 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 # Initialize App
-dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+dbc_css = (
+    "https://cdn.jsdelivr.net/gh/AnnMarieW/"
+    "dash-bootstrap-templates/dbc.min.css"
+)
 app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -36,6 +39,7 @@ server = app.server
 app.title = "Spotify Analyzer"
 landing_urls = [
     "http://127.0.0.1:8050/",
+    "http://127.0.0.1:8050/overview/",
     "https://spotify-analyzer-b1vf.onrender.com/",
     "https://spotify-analyzer-b1vf.onrender.com/overview/",
 ]
@@ -55,7 +59,10 @@ class GetTopStats:
         self.recent_tracks = {}
 
     def get_top_tracks(self, time_range, limit=12):
-        url = f"https://api.spotify.com/v1/me/top/tracks?time_range={time_range}&limit={limit}"
+        url = (
+            f"https://api.spotify.com/v1/me/top/tracks?"
+            f"time_range={time_range}&limit={limit}"
+        )
 
         response = requests.get(
             url,
@@ -65,10 +72,16 @@ class GetTopStats:
             },
         )
 
+        if not response.text:
+            print('Response is empty')
+
         self.top_tracks = response.json()
 
     def get_recently_played(self, limit=7):
-        url = f"https://api.spotify.com/v1/me/player/recently-played?limit={limit}"
+        url = (
+            "https://api.spotify.com/v1/me/player/recently-played?"
+            f"limit={limit}"
+        )
 
         response = requests.get(
             url,
@@ -88,12 +101,18 @@ class GetTopStats:
 
 def top_track_div(item):
     image = dbc.CardImg(
-        src=item["album"]["images"][0]["url"], top=True, className="image-top-track"
+        src=item["album"]["images"][0]["url"],
+        top=True,
+        className="image-top-track"
     )
     track_name = item["name"]
     artist_name = item["artists"][0]["name"]
     title = html.P(track_name, className="text-top-track")
-    title = html.A(title, href=item["external_urls"]["spotify"], target="_blank")
+    title = html.A(
+        title,
+        href=item["external_urls"]["spotify"],
+        target="_blank"
+    )
     subtitle = html.P(artist_name, className="subtitle-top-track")
 
     container_item = html.Div(
@@ -109,7 +128,10 @@ def top_track_div(item):
 
 
 def recent_track_div(item):
-    image = dbc.CardImg(src=item["track"]["album"]["images"][0]["url"], top=True)
+    image = dbc.CardImg(
+        src=item["track"]["album"]["images"][0]["url"],
+        top=True
+    )
     track_name = item["track"]["name"]
     artist_name = item["track"]["artists"][0]["name"]
     title = html.P(track_name, className="text-top-track text-recent-track")
@@ -148,12 +170,10 @@ def top_tracks(range):
     top = GetTopStats()
     top.call_refresh()
     top.get_top_tracks(time_range=dict_ranges[range])
-    title = html.H4(f"Top Tracks: {range}", className="section-header")
     items = [top_track_div(item) for item in top.top_tracks["items"]]
 
     container = html.Div(
         [
-            dbc.Row([dbc.Col([title])]),
             dbc.Row(
                 [
                     dbc.Col(items[:3], width=6, lg=3),
@@ -176,7 +196,7 @@ def recent_tracks():
     results = top.recent_tracks
     title = html.H4(f"Top Tracks: {range}", className="section-header")
     items = [recent_track_div(item) for item in results["items"]]
-    title = html.H4(f"Recently played", className="section-header")
+    title = html.H4("Recently played", className="section-header")
     children = [dbc.Row([dbc.Col([items[i]])]) for i in (range(len(items)))]
     children.insert(0, dbc.Row([dbc.Col([title])]))
     container = html.Div(
@@ -318,7 +338,10 @@ def df_to_heatmap_v(df):
     fig = px.imshow(
         df,
         labels=dict(
-            x="Day", y="Time", color="Count", title="Listening activity heatmap"
+            x="Day",
+            y="Time",
+            color="Count",
+            title="Listening activity heatmap"
         ),
         color_continuous_scale="inferno",
         aspect="auto",
@@ -394,7 +417,8 @@ def df_to_heatmap_v(df):
 
 
 def heatmap_yearly():
-    # Create a matrix dataframe with the number of tracks played per hour (rows) and day of the week (columns)
+    # Create a matrix dataframe with number of tracks played per hour (rows)
+    # and day of the week (columns)
     df = spotify_df.copy()
     df["endTime"] = pd.to_datetime(df["endTime"], format="%Y-%m-%d %H:%M")
     df["hour"] = df["endTime"].dt.hour
@@ -402,7 +426,10 @@ def heatmap_yearly():
     heatmap = df.groupby(["day", "hour"]).count()
     heatmap.reset_index(inplace=True)
     heatmap = heatmap[["day", "hour", "trackName"]]
-    heatmap.rename(columns={"trackName": "Number of songs listened"}, inplace=True)
+    heatmap.rename(
+        columns={"trackName": "Number of songs listened"},
+        inplace=True
+    )
     heatmap.sort_values(by=["day", "hour"], inplace=True)
     heatmap.reset_index(inplace=True)
     heatmap.drop(columns="index", inplace=True)
@@ -418,7 +445,10 @@ def heatmap_weekly():
     heatmap = df.groupby(["week", "day", "hour"]).count()
     heatmap.reset_index(inplace=True)
     heatmap = heatmap[["week", "day", "hour", "trackName"]]
-    heatmap.rename(columns={"trackName": "Number of songs listened"}, inplace=True)
+    heatmap.rename(
+        columns={"trackName": "Number of songs listened"},
+        inplace=True
+    )
     heatmap.sort_values(by=["week", "day", "hour"], inplace=True)
     heatmap.reset_index(inplace=True)
     heatmap.drop(columns="index", inplace=True)
@@ -429,7 +459,10 @@ def heatmap_weekly():
         heatmap[heatmap["week"] == week] for week in heatmap["week"].unique()
     ]
     # Create a list containing heatmap figures for each week of the year
-    json_list = [df.to_json(date_format="iso", orient="split") for df in heatmap_list]
+    json_list = [
+        df.to_json(date_format="iso", orient="split")
+        for df in heatmap_list
+    ]
     return json_list
 
 
@@ -441,7 +474,11 @@ def top_artists_bar_graph(window_width):
     top_artists["msPlayed"] = top_artists["msPlayed"] / 60000
     top_artists["msPlayed"] = top_artists["msPlayed"].round()
     top_artists.rename(columns={"msPlayed": "Minutes Listened"}, inplace=True)
-    top_artists.sort_values(by="Minutes Listened", ascending=False, inplace=True)
+    top_artists.sort_values(
+        by="Minutes Listened",
+        ascending=False,
+        inplace=True
+    )
     top_artists.reset_index(inplace=True)
     top_artists.drop(columns="index", inplace=True)
     top_artists = top_artists.head(15)
@@ -518,7 +555,11 @@ def top_tracks_bar_graph(window_width):
     top_tracks["msPlayed"] = top_tracks["msPlayed"] / 60000
     top_tracks["msPlayed"] = top_tracks["msPlayed"].round()
     top_tracks.rename(columns={"msPlayed": "Minutes Listened"}, inplace=True)
-    top_tracks.sort_values(by="Minutes Listened", ascending=False, inplace=True)
+    top_tracks.sort_values(
+        by="Minutes Listened",
+        ascending=False,
+        inplace=True
+    )
     top_tracks.reset_index(inplace=True)
     top_tracks.drop(columns="index", inplace=True)
     top_tracks = top_tracks.head(15)
@@ -615,7 +656,6 @@ tracks_range_radio = html.Div(
     className="radio-container",
 )
 
-# profile_image = html.Div(html.Img(src = app.get_asset_url('profile.jpg'), className='profile-image'), className='profile-image-container')
 profile_image = html.Div(
     [
         html.A(
@@ -636,13 +676,27 @@ card_user_stats = html.Div(user_stats())
 
 navbar = dbc.Nav(
     [
-        dbc.NavItem(dbc.NavLink("Overview", active="exact", href="/overview/")),
         dbc.NavItem(
             dbc.NavLink(
-                "Listening Patterns", active="exact", href="/listening_patterns/"
+                "Overview",
+                active="exact",
+                href="/overview/"
             )
         ),
-        dbc.NavItem(dbc.NavLink("Top Tracks & Artists", active="exact", href="/top/")),
+        dbc.NavItem(
+            dbc.NavLink(
+                "Listening Patterns",
+                active="exact",
+                href="/listening_patterns/"
+            )
+        ),
+        dbc.NavItem(
+            dbc.NavLink(
+                "Top Tracks & Artists",
+                active="exact",
+                href="/top/"
+            )
+        ),
         dbc.NavItem(dbc.NavLink("About", active="exact", href="/about/")),
     ],
     id="navbar",
@@ -656,7 +710,14 @@ navbar_container = dbc.Col(
 )
 dropdown_options = [{"label": f"Week {x}", "value": x} for x in range(0, 53)]
 dropdown_week = html.Div(
-    [dcc.Dropdown(options=dropdown_options, value=0, id="dropdown-week", maxHeight=150)]
+    [
+        dcc.Dropdown(
+            options=dropdown_options,
+            value=0,
+            id="dropdown-week",
+            maxHeight=150
+        )
+    ]
 )
 control_title = html.H4("Select", className="section-header")
 navbar_container_dropdown = dbc.Col(
@@ -666,7 +727,12 @@ navbar_container_dropdown = dbc.Col(
     children=[
         html.Div([dbc.Col([navbar])]),
         html.Div(
-            [dbc.Col([control_title, dropdown_week], className="controls")],
+            [
+                dbc.Col(
+                    [control_title, dropdown_week],
+                    className="controls"
+                )
+            ],
         ),
     ],
 )
@@ -690,17 +756,24 @@ about = html.Div(
     [
         html.P("I have always wondered what my music listening habits are 🎵."),
         html.P(
-            "That's why I created this dashboard to get to know, understand and visualize 📈 the relationship with my favorite music."
+            "That's why I created this dashboard to get to know, "
+            "understand and visualize 📈 the relationship with "
+            "my favorite music."
         ),
         html.P(
-            "From a personal overview, to listening patterns, and top tracks/artists."
+            "From a personal overview, to listening patterns, "
+            "and top tracks/artists."
         ),
         html.P(
-            "Here, I present you my personal Spotify dashboard 🎉. An interactive web application built using Spotify's API data obtained via Python, transformed using Pandas and visualized with Plotly Dash."
+            "Here, I present you my personal Spotify dashboard 🎉. "
+            "An interactive web application built using Spotify's "
+            "API data obtained via Python, transformed using "
+            "Pandas and visualized with Plotly Dash."
         ),
         html.P(
             [
-                "The application is hosted on Render and the code is available on my ",
+                "The application is hosted on Render and the code "
+                "is available on my ",
                 html.A(
                     "Github.",
                     href="https://github.com/frankfnl/spotify_analyzer",
@@ -830,7 +903,7 @@ def style_main_container(window_size):
     Output("profile-image-tooltip", "is_open"),
     [Input("url", "href")],
 )
-def create_bpa_sp_container(url):
+def show_profilepic_tooltip(url):
     if url in landing_urls:
         return True
     else:
@@ -867,31 +940,62 @@ def top_tracks_callback(value):
 
 
 @app.callback(
+    Output("top-tracks-container", "children"),
+    Input("stored-window-size", "data"),
+    Input("tracks-range-radio", "value"),
+)
+def top_tracks_children(window_size, value):
+    width = window_size[1]
+    title = html.H4(f"Top Tracks: {value}", className="section-header")
+    title_container = html.Div(
+        [
+            dbc.Row([dbc.Col([title])])
+        ],
+    )
+    if width < 670:
+        return [title_container, tracks_range_radio, card_top_tracks]
+    else:
+        return [title_container, card_top_tracks, tracks_range_radio]
+
+
+@app.callback(
     Output("listening-patterns-yearly", "children"),
     Input("stored-window-size", "data"),
     Input("stored-heatmap-yearly", "data"),
 )
 def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     title1 = html.H4(
-        "Yearly listening patterns", className="section-header section-header-heatmap"
+        'Yearly listening patterns',
+        className='section-header section-header-heatmap'
     )
-    df = pd.read_json(heatmap_yearly_json, orient="split").copy()
+    df = pd.read_json(heatmap_yearly_json, orient='split').copy()
     height = window_size[0] * 0.35
     width = window_size[1]
 
     if width < 670:
-        df = df.pivot(index="hour", columns="day", values="Number of songs listened")
+        df = df.pivot(
+            index='hour',
+            columns='day',
+            values='Number of songs listened'
+        )
         fig = df_to_heatmap_v(df)
         fig.update_layout(width=width)
     else:
-        df = df.pivot(index="day", columns="hour", values="Number of songs listened")
+        df = df.pivot(
+            index='day',
+            columns='hour',
+            values='Number of songs listened'
+        )
         fig = df_to_heatmap_h(df)
         fig.update_layout(height=height)
 
     if width < 670:
         fig.update_layout(yaxis=dict(tickfont=dict(size=8)))
         fig.update_layout(xaxis=dict(tickfont=dict(size=8)))
-    listening_patterns_yearly = html.Div([dcc.Graph(figure=fig)], className="heatmap")
+    listening_patterns_yearly = html.Div(
+        [dcc.Graph(figure=fig)],
+        className='heatmap'
+    )
     return [title1, listening_patterns_yearly]
 
 
@@ -912,12 +1016,20 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     width = window_size[1]
 
     if width < 670:
-        df = df.pivot(index="hour", columns="day", values="Number of songs listened")
+        df = df.pivot(
+            index="hour",
+            columns="day",
+            values="Number of songs listened"
+        )
         fig = df_to_heatmap_v(df)
         fig.update_layout(width=width)
         searchable = False
     else:
-        df = df.pivot(index="day", columns="hour", values="Number of songs listened")
+        df = df.pivot(
+            index="day",
+            columns="hour",
+            values="Number of songs listened"
+        )
         fig = df_to_heatmap_h(df)
         fig.update_layout(height=height)
         searchable = True
@@ -925,7 +1037,10 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     if width < 670:
         fig.update_layout(yaxis=dict(tickfont=dict(size=8)))
         fig.update_layout(xaxis=dict(tickfont=dict(size=8)))
-    listening_patterns_weekly = html.Div([dcc.Graph(figure=fig)], className="heatmap")
+    listening_patterns_weekly = html.Div(
+        [dcc.Graph(figure=fig)],
+        className="heatmap"
+    )
     return [title, listening_patterns_weekly], searchable
 
 
@@ -965,7 +1080,7 @@ def render_page_content(pathname):
                 id="recent-tracks-container",
             ),
             dbc.Col(
-                [card_top_tracks, tracks_range_radio],
+                [tracks_range_radio],
                 xs=12,
                 lg=4,
                 className="column-container",
@@ -986,7 +1101,8 @@ def render_page_content(pathname):
                 [
                     html.Div(id="listening-patterns-yearly"),
                     dbc.Spinner(
-                        html.Div(id="listening-patterns-weekly"), color="primary"
+                        html.Div(id="listening-patterns-weekly"),
+                        color="primary"
                     ),
                 ],
                 xs=12,
@@ -998,7 +1114,12 @@ def render_page_content(pathname):
         return [
             navbar_container,
             dbc.Col(
-                [dbc.Spinner(html.Div(id="top-artists-tracks"), color="primary")],
+                [
+                    dbc.Spinner(
+                        html.Div(id="top-artists-tracks"),
+                        color="primary"
+                    )
+                ],
                 xs=12,
                 lg=8,
                 className="column-container",
@@ -1007,8 +1128,18 @@ def render_page_content(pathname):
     elif pathname == "/about/":
         return [
             navbar_container,
-            dbc.Col([about], xs=12, lg=4, className="column-container"),
-            dbc.Col([profile_image, links], xs=12, lg=1, className="column-container"),
+            dbc.Col(
+                [about],
+                xs=12,
+                lg=4,
+                className="column-container"
+            ),
+            dbc.Col(
+                [profile_image, links],
+                xs=12,
+                lg=1,
+                className="column-container"
+            ),
         ]
 
 
