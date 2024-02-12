@@ -21,9 +21,9 @@ To run this project, you will need to add the following environment variables to
 
 `redirect_uri` The value of this parameter must exactly match the value of redirect_uri supplied when requesting the authorization code.
 
-`refresh_token` A refresh token is a security credential that allows client applications to obtain new access tokens without requiring users to reauthorize the application.See [refreshing tokens](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
+`refresh_token` A refresh token is a security credential that allows client applications to obtain new access tokens without requiring users to reauthorize the application. See [refreshing tokens](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
 
-`base_64` Base 64 encoded string that contains the client ID and client secret key. The field must have the format: Authorization: Basic <base64 encoded client_id:client_secret>
+`base_64` Base 64 encoded string that contains the client ID and client secret key. The field must have the format client_id:client_secret
 
 ## Installation
 Clone this repository and run pip to install the required packages (Python 3.9)
