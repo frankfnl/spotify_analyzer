@@ -7,7 +7,8 @@ import pickle
 from refresh import Refresh
 import requests
 
-from dash import Dash, html, dcc, Output, Input, State, callback, ClientsideFunction
+from dash import Dash, html, dcc, Output, Input, State, callback, \
+    clientside_callback
 from dash.exceptions import PreventUpdate
 import dash
 import dash_bootstrap_components as dbc
@@ -17,8 +18,6 @@ from flask_caching import Cache
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 
 # Initialize App
 dbc_css = (
@@ -644,17 +643,20 @@ header = html.P(
     className="app-header",
 )
 
-tracks_range_radio = html.Div(
-    [
-        dcc.RadioItems(
-            ["Last 4 Weeks", "Last 6 Months", "All Time"],
-            "Last 4 Weeks",
-            id="tracks-range-radio",
-            className="horizontal-radio",
-        )
-    ],
-    className="radio-container",
-)
+
+def tracks_range_radio(id, value):
+    return html.Div(
+        [
+            dcc.RadioItems(
+                ["Last 4 Weeks", "Last 6 Months", "All Time"],
+                value,
+                id=id,
+                className="horizontal-radio",
+            )
+        ],
+        className="radio-container",
+    )
+
 
 profile_image = html.Div(
     [
@@ -858,7 +860,7 @@ app.layout = dbc.Container(
 # Client-Side callbacks
 # ––––––––––––––––––––––––––––––––––––––––––––––––––
 # Sets zoom of the layout depending on the browser window size
-app.clientside_callback(
+clientside_callback(
     """
     function(href) {
         var window_height = window.innerHeight;
@@ -872,7 +874,7 @@ app.clientside_callback(
 
 
 # Callbacks
-@app.callback(
+@callback(
     Output("main-container", "style"),
     Input("stored-window-size", "data"),
 )
@@ -899,7 +901,7 @@ def style_main_container(window_size):
         }
 
 
-@app.callback(
+@callback(
     Output("profile-image-tooltip", "is_open"),
     [Input("url", "href")],
 )
@@ -910,7 +912,7 @@ def show_profilepic_tooltip(url):
         return False
 
 
-@app.callback(
+@callback(
     Output("stored-heatmap-yearly", "data"),
     Input("dummy", "children"),
 )
@@ -919,7 +921,7 @@ def store_heatmap_data_yearly_callback(dummy):
     return df
 
 
-@app.callback(
+@callback(
     Output("stored-heatmap-weekly", "data"),
     Input("dummy", "children"),
 )
@@ -928,7 +930,7 @@ def store_heatmap_data_weekly_callback(dummy):
     return df
 
 
-@app.callback(
+@callback(
     Output("top-tracks", "children"),
     Input("tracks-range-radio", "value"),
 )
@@ -939,7 +941,7 @@ def top_tracks_callback(value):
         raise PreventUpdate
 
 
-@app.callback(
+@callback(
     Output("top-tracks-container", "children"),
     Input("stored-window-size", "data"),
     Input("tracks-range-radio", "value"),
@@ -953,12 +955,20 @@ def top_tracks_children(window_size, value):
         ],
     )
     if width < 670:
-        return [title_container, tracks_range_radio, card_top_tracks]
+        return [
+            title_container,
+            tracks_range_radio("tracks-range-radio", value),
+            card_top_tracks
+        ]
     else:
-        return [title_container, card_top_tracks, tracks_range_radio]
+        return [
+            title_container,
+            card_top_tracks,
+            tracks_range_radio("tracks-range-radio", value)
+        ]
 
 
-@app.callback(
+@callback(
     Output("listening-patterns-yearly", "children"),
     Input("stored-window-size", "data"),
     Input("stored-heatmap-yearly", "data"),
@@ -999,7 +1009,7 @@ def listening_patterns_yearly_callback(window_size, heatmap_yearly_json):
     return [title1, listening_patterns_yearly]
 
 
-@app.callback(
+@callback(
     Output("listening-patterns-weekly", "children"),
     Output("dropdown-week", "searchable"),
     Input("stored-window-size", "data"),
@@ -1044,7 +1054,7 @@ def listening_patterns_weekly_callback(window_size, heatmap_weekly_json, week):
     return [title, listening_patterns_weekly], searchable
 
 
-@app.callback(
+@callback(
     Output("top-artists-tracks", "children"),
     Input("stored-window-size", "data"),
 )
@@ -1062,7 +1072,7 @@ def top_artists_tracks_callback(window_size):
     ]
 
 
-@app.callback(
+@callback(
     Output("page-content", "children"),
     [Input("url", "pathname")],
 )
@@ -1080,7 +1090,7 @@ def render_page_content(pathname):
                 id="recent-tracks-container",
             ),
             dbc.Col(
-                [tracks_range_radio],
+                [tracks_range_radio("tracks-range-radio", "Last 4 Weeks")],
                 xs=12,
                 lg=4,
                 className="column-container",
